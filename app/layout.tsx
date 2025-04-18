@@ -12,6 +12,14 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Merajul Haque - Software Developer",
   description: "Portfolio website of Merajul Haque, a Software Developer",
+  icons: {
+    icon: [
+      { url: '/haquedot.svg', sizes: 'any', type: 'image/x-icon' },
+      { url: '/haquedot.svg', sizes: '16x16', type: 'image/png' },
+      { url: '/haquedot.svg', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/haquedot.svg',
+  },
 }
 
 export default function RootLayout({
