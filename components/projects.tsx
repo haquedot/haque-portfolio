@@ -5,9 +5,11 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Github, ExternalLink } from "lucide-react"
+import Link from "next/link"
 
 const projects = [
   {
+    logo: "/englishexpresswayLogo.svg",
     title: "English Expressway",
     description:
       "An online platform to join courses and buy ebooks to learn English, featuring role-based authentication and payment integration.",
@@ -24,13 +26,14 @@ const projects = [
     ],
   },
   {
+    logo: "/thankquizLogo.svg",
     title: "ThankQuiz",
     description:
       "A fully responsive quiz web application with OTP-based authentication and AI-generated questions.",
     image: "/thankquiz.webp",
     tags: ["ReactJS", "Redux", "Bootstrap", "Figma", "OpenAI API"],
-    demoUrl: "#",
-    githubUrl: "https://sandbox-frontend.thankquiz.com/",
+    demoUrl: "https://thankquiz.com/",
+    githubUrl: "#",
     features: [
       "OTP-based mobile authentication via API",
       "Profile completion workflows with user data storage",
@@ -40,13 +43,31 @@ const projects = [
     ],
   },
   {
+    logo: "/humanitycarefoundationLogo.svg",
+    title: "Humanity Care Foundation",
+    description:
+      "A modern website for a charitable organization, highlighting their mission, donation options, and community impact with a smooth UI/UX experience.",
+    image: "/humanitycarefoundation.webp",
+    tags: ["Next.js", "Tailwind CSS", "Framer Motion", "Figma", "Nodemailer"],
+    demoUrl: "https://www.humanitycarefoundation.in/",
+    githubUrl: "#",
+    features: [
+      "Animated homepage using Framer Motion for engaging transitions",
+      "Clean and responsive design built with Tailwind CSS",
+      "Contact form with Nodemailer for email handling",
+      "Sections like About, Mission, Services, Gallery, and Contact",
+      "Designed in Figma and implemented using Next.js for fast performance",
+    ]
+  },
+  {
+    logo: "/exceedroboticsLogo.png",
     title: "Exceed Robotics",
     description:
       "Program enrollment camps and blog pages for Exceed Robotics, focusing on intuitive user experience.",
     image: "/exceedrobotics.webp",
     tags: ["HTML", "CSS", "JavaScript", "Bootstrap", "jQuery"],
-    demoUrl: "#",
-    githubUrl: "https://exceedrobotics.com/",
+    demoUrl: "https://exceedrobotics.com/",
+    githubUrl: "#",
     features: [
       "Responsive program enrollment pages",
       "Interactive blog section",
@@ -115,10 +136,20 @@ export default function Projects() {
 
                 <div className="flex gap-3 pt-2">
                   <Button size="sm">
-                    <ExternalLink className="mr-2 h-4 w-4" /> Demo
+                    <Link
+                      href={project.demoUrl}
+                      className="flex items-center"
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" /> Demo
+                    </Link>
                   </Button>
                   <Button size="sm" variant="outline">
-                    <Github className="mr-2 h-4 w-4" /> GitHub
+                    <Link
+                      href={project.githubUrl}
+                      className="flex items-center"
+                    >
+                      <Github className="mr-2 h-4 w-4" /> GitHub
+                    </Link>
                   </Button>
                 </div>
               </div>
