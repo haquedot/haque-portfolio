@@ -65,7 +65,7 @@ export default function Hero() {
               </Button>
             </Link>
             <Link
-              href="/public/MerajResumeFR.pdf"
+              href="/MerajResumeFR.pdf"
               target="_blank"
               download
             >
