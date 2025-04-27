@@ -9,6 +9,20 @@ import Link from "next/link"
 
 const projects = [
   {
+    logo: "/matchwize.svg",
+    title: "Matchwize",
+    description:
+      "matchwize analyzes your resume against job descriptions to give you a match score and actionable suggestions to improve your chances.",
+    image: "/matchwize.webp",
+    tags: ["Next.js", "Node.js", "Express.js", "Supabase", "Tailwind CSS", "Gemini API"],
+    demoUrl: "https://matchwize.com/",
+    githubUrl: "",
+    features: [
+      "Gemini API integration for resume analysis",
+      "Supabase for data storage",
+    ],
+  },
+  {
     logo: "/englishexpresswayLogo.svg",
     title: "English Expressway",
     description:
@@ -16,7 +30,7 @@ const projects = [
     image: "/englishexpressway.webp",
     tags: ["Next.js", "NextAuth.js", "Tailwind CSS", "MongoDB", "Razorpay"],
     demoUrl: "https://www.englishexpressway.com/",
-    githubUrl: "#",
+    githubUrl: "",
     features: [
       "Role-based authentication using NextAuth.js and JWT",
       "Integrated Razorpay for payment transactions",
@@ -33,7 +47,7 @@ const projects = [
     image: "/thankquiz.webp",
     tags: ["ReactJS", "Redux", "Bootstrap", "Figma", "OpenAI API"],
     demoUrl: "https://thankquiz.com/",
-    githubUrl: "#",
+    githubUrl: "",
     features: [
       "OTP-based mobile authentication via API",
       "Profile completion workflows with user data storage",
@@ -50,7 +64,7 @@ const projects = [
     image: "/humanitycarefoundation.webp",
     tags: ["Next.js", "Tailwind CSS", "Framer Motion", "Figma", "Nodemailer"],
     demoUrl: "https://www.humanitycarefoundation.in/",
-    githubUrl: "#",
+    githubUrl: "",
     features: [
       "Animated homepage using Framer Motion for engaging transitions",
       "Clean and responsive design built with Tailwind CSS",
@@ -67,7 +81,7 @@ const projects = [
     image: "/exceedrobotics.webp",
     tags: ["HTML", "CSS", "JavaScript", "Bootstrap", "jQuery"],
     demoUrl: "https://exceedrobotics.com/",
-    githubUrl: "#",
+    githubUrl: "",
     features: [
       "Responsive program enrollment pages",
       "Interactive blog section",
@@ -139,18 +153,24 @@ export default function Projects() {
                     <Link
                       href={project.demoUrl}
                       className="flex items-center"
+                      target="_blank"
                     >
-                      <ExternalLink className="mr-2 h-4 w-4" /> Demo
+                      <ExternalLink className="mr-2 h-4 w-4" /> Live
                     </Link>
                   </Button>
-                  <Button size="sm" variant="outline">
-                    <Link
-                      href={project.githubUrl}
-                      className="flex items-center"
-                    >
-                      <Github className="mr-2 h-4 w-4" /> GitHub
-                    </Link>
-                  </Button>
+                  {
+                    project.githubUrl && (
+                      <Button size="sm" variant="outline">
+                        <Link
+                          href={project.githubUrl}
+                          className="flex items-center"
+                          target="_blank"
+                        >
+                          <Github className="mr-2 h-4 w-4" /> Code
+                        </Link>
+                      </Button>
+                    )
+                  }
                 </div>
               </div>
             </motion.div>

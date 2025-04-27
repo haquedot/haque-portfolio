@@ -4,13 +4,13 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Github, Linkedin, Download, Mail, MapPin } from "lucide-react"
 import { FaNode } from "react-icons/fa"
-import { RiNextjsFill, RiReactjsFill, RiTailwindCssFill } from "react-icons/ri"
+import { RiNextjsFill, RiReactjsFill, RiTailwindCssFill, RiTwitterXLine } from "react-icons/ri"
 import { SiMongodb } from "react-icons/si"
 import Link from "next/link"
 
 export default function Hero() {
   return (
-    <section className="py-10">
+    <section className="py-6 md:py-10">
       <div className="grid md:grid-cols-3 gap-10 items-center max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -42,18 +42,36 @@ export default function Hero() {
 
           <div className="flex flex-wrap gap-2 sm:gap-3">
             <Link
+              href="/MerajResumeFR.pdf"
+              target="_blank"
+              download
+            >
+              <Button size="sm" className="text-xs sm:text-sm">
+                <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Resume
+              </Button>
+            </Link>
+            <Link
               href="https://github.com/haquedot"
               target="_blank"
             >
-              <Button size="sm" className="text-xs sm:text-sm">
-                <Github className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> GitHub
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                <Github className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
             <Link
               href="mailto:haquedot@gmail.com"
+              target="_blank"
             >
               <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <Mail className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Email
+                <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+            </Link>
+            <Link
+              href="https://x.com/haquedot"
+              target="_blank"
+            >
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                <RiTwitterXLine className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
             <Link
@@ -61,16 +79,7 @@ export default function Hero() {
               target="_blank"
             >
               <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <Linkedin className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> LinkedIn
-              </Button>
-            </Link>
-            <Link
-              href="/MerajResumeFR.pdf"
-              target="_blank"
-              download
-            >
-              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Resume
+                <Linkedin className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
           </div>
