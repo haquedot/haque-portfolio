@@ -5,9 +5,18 @@ import { Badge } from "@/components/ui/badge"
 
 const experiences = [
   {
+    title:  "Frontend Developer Intern",
+    company: "Lincode",
+    period: "May 2025 - Present",
+    responsibilities: [
+      "Working on frontend development.",
+    ],
+    skills: ["React", "TypeScript", "Material UI", "SCSS"],
+  },
+  {
     title: "Frontend Developer Intern",
     company: "WhatBytes",
-    period: "Jan 2025 - Present",
+    period: "Jan 2025 - May 2025",
     responsibilities: [
       "Worked on a live project called Cura Care (curacare.in)",
       "Implemented website analytics to track user interactions using PostHog, Google Analytics, and Facebook Pixel",

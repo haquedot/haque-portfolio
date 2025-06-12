@@ -7,7 +7,7 @@ const education = [
     institution: "Maulana Azad National Urdu University, Hyderabad",
     degree: "B.Tech (Lateral Entry), Computer Science",
     period: "Oct 2022 - May 2025",
-    gpa: "CGPA: 8.66/10",
+    gpa: "CGPA: 8.71/10",
     icon: "🎓",
   },
   {
