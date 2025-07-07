@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Header from "@/components/header"
+import AdHeader from "@/components/ad-header"
 import { Suspense } from "react"
 import Loading from "@/components/loading"
 
@@ -31,6 +32,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <AdHeader
+            title="🚀 Smart Todo"
+            description="AI-powered task management"
+            buttonText="View"
+            href="https://todo.haque.tech/"
+            isExternal={true}
+            dismissible={true}
+          />
           <Suspense fallback={<Loading />}>
             <Header />
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">{children}</main>
