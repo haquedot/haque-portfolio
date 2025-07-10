@@ -7,6 +7,7 @@ import Header from "@/components/header"
 import AdHeader from "@/components/ad-header"
 import { Suspense } from "react"
 import Loading from "@/components/loading"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -41,6 +42,7 @@ export default function RootLayout({
             dismissible={true}
           />
           <Suspense fallback={<Loading />}>
+            <Analytics/>
             <Header />
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">{children}</main>
             <footer className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-muted-foreground">
