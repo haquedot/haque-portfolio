@@ -34,10 +34,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AdHeader
-            title="🚀 Smart Todo"
-            description="AI-powered task management"
+            title="🚀 MatchWise"
+            description="Optimize Your Resume with AI"
             buttonText="View"
-            href="https://todo.haque.tech/"
+            href="https://matchwize.com/"
             isExternal={true}
             dismissible={true}
           />
