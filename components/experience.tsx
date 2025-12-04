@@ -7,7 +7,7 @@ const experiences = [
   {
     title:  "Frontend Developer Intern",
     company: "Lincode",
-    period: "May 2025 - Present",
+    period: "May 2025 - Nov 2025",
     responsibilities: [
       "Working on frontend development.",
     ],
