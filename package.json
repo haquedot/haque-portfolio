@@ -47,7 +47,7 @@
     "framer-motion": "latest",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
+    "next": "15.2.6",
     "next-themes": "latest",
     "nodemailer": "^6.10.1",
     "react": "^18.2.0",
