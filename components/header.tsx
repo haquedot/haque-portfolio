@@ -81,7 +81,7 @@ export default function Header() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <Link href="/" className="text-lg font-bold">
-                Haque.
+                Haque<span className="text-4xl text-emerald-400">.</span>
               </Link>
             </div>
             <div className="w-10 h-10"></div> {/* Placeholder for theme toggle */}
@@ -107,7 +107,7 @@ export default function Header() {
               {...hoverScale}
             >
               <Link href="/" className="text-lg font-bold">
-                Haque.
+                Haque<span className="text-4xl text-emerald-400">.</span>
               </Link>
             </motion.div>
           </div>
