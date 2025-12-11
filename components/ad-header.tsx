@@ -40,7 +40,7 @@ export default function AdHeader({
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white overflow-hidden"
+          className="w-full bg-gradient-to-r from-emerald-400 to-emerald-600 text-white overflow-hidden"
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between py-3">
@@ -62,7 +62,7 @@ export default function AdHeader({
                   asChild
                   size="sm"
                   variant="secondary"
-                  className="bg-white text-blue-600 hover:bg-white/90 shrink-0"
+                  className="bg-white text-emerald-600 hover:bg-white/90 shrink-0"
                 >
                   {isExternal ? (
                     <a

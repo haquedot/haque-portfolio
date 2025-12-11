@@ -2,50 +2,8 @@
 
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
-
-const experiences = [
-  {
-    title:  "Frontend Developer Intern",
-    company: "Lincode",
-    period: "May 2025 - Nov 2025",
-    responsibilities: [
-      "Working on frontend development.",
-    ],
-    skills: ["React", "TypeScript", "Material UI", "SCSS"],
-  },
-  {
-    title: "Frontend Developer Intern",
-    company: "WhatBytes",
-    period: "Jan 2025 - May 2025",
-    responsibilities: [
-      "Worked on a live project called Cura Care (curacare.in)",
-      "Implemented website analytics to track user interactions using PostHog, Google Analytics, and Facebook Pixel",
-      "Developed dynamic slot management system based on bookings",
-    ],
-    skills: ["Next.js","ReactJs", "JavaScript", "TailwindCSS"],
-  },
-  {
-    title: "Web Developer",
-    company: "Ministry of Electronics and Information Technology",
-    period: "Mar 2024 – Jun 2024",
-    responsibilities: [
-      "Developed a CMS dashboard for eDeskshaam, enhancing UI/UX and improving user interaction",
-      "Designed and implemented responsive 'Important Links' and 'Events' pages using React.js",
-    ],
-    skills: ["React", "JavaScript", "UI/UX", "Responsive Design"],
-  },
-  {
-    title: "Web Developer",
-    company: "Ministry of Electronics and Information Technology",
-    period: "Mar 2023 – Dec 2023",
-    responsibilities: [
-      "Created four interactive educational games (Identify Fruits, Animals, Vehicles, Body Parts)",
-      "Developed user-friendly homepage for educational games and collaborated with UX designers",
-      "Worked closely with back-end developers to ensure seamless integration and cohesive user experience",
-    ],
-    skills: ["React", "JavaScript", "UI/UX", "Responsive Design"],
-  },
-]
+import { experienceData } from "@/constants/experience"
+import { containerVariants, itemVariants, hoverLift } from "@/lib/animations"
 
 export default function Experience() {
   return (
@@ -56,44 +14,110 @@ export default function Experience() {
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-3xl font-bold mb-10">Experience</h2>
+        <motion.h2 
+          className="text-3xl font-bold mb-10"
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          Experience
+        </motion.h2>
 
-        <div className="space-y-10">
-          {experiences.map((exp, index) => (
+        <motion.div 
+          className="space-y-10"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          {experienceData.map((exp, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              variants={itemVariants}
               className="space-y-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+              <motion.div 
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg bg-muted/60 transition-colors"
+                {...hoverLift}
+              >
                 <div>
-                  <h3 className="text-xl font-semibold">{exp.title}</h3>
-                  <p className="text-muted-foreground">{exp.company}</p>
+                  <motion.h3 
+                    className="text-xl font-semibold"
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                  >
+                    {exp.title}
+                  </motion.h3>
+                  <motion.p 
+                    className="text-muted-foreground"
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.15 }}
+                  >
+                    {exp.company}
+                  </motion.p>
                 </div>
-                <p className="text-sm text-muted-foreground">{exp.period}</p>
-              </div>
+                <motion.p 
+                  className="text-sm text-muted-foreground mt-2 sm:mt-0"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  {exp.period}
+                </motion.p>
+              </motion.div>
 
-              <ul className="list-disc pl-5 space-y-2">
+              <motion.ul 
+                className="list-disc pl-5 space-y-2"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+              >
                 {exp.responsibilities.map((resp, idx) => (
-                  <li key={idx} className="text-sm">
+                  <motion.li 
+                    key={idx} 
+                    className="text-sm"
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.05 }}
+                  >
                     {resp}
-                  </li>
+                  </motion.li>
                 ))}
-              </ul>
+              </motion.ul>
 
-              <div className="flex flex-wrap gap-2">
+              <motion.div 
+                className="flex flex-wrap gap-2"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+              >
                 {exp.skills.map((skill, idx) => (
-                  <Badge key={idx} variant="outline">
-                    {skill}
-                  </Badge>
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: idx * 0.05 }}
+                    whileHover={{ y: -3 }}
+                  >
+                    <Badge variant="outline">
+                      {skill}
+                    </Badge>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   )

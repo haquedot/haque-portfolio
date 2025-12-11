@@ -7,6 +7,20 @@ import { FaNode } from "react-icons/fa"
 import { RiNextjsFill, RiReactjsFill, RiTailwindCssFill, RiTwitterXLine } from "react-icons/ri"
 import { SiMongodb } from "react-icons/si"
 import Link from "next/link"
+import { profile } from "@/constants/profile"
+import { fadeInUp, containerVariants, itemVariants, hoverScale, tapScale } from "@/lib/animations"
+
+const buttonVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.5,
+    },
+  }),
+}
 
 export default function Hero() {
   return (
@@ -19,70 +33,127 @@ export default function Hero() {
           className="space-y-6 md:col-span-2"
         >
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Merajul Haque</h1>
-            <p className="text-lg sm:text-xl text-muted-foreground">Software Engineer</p>
+            <motion.h1 
+              className="text-3xl sm:text-4xl font-bold tracking-tight"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              {profile.name}
+            </motion.h1>
+            <motion.p 
+              className="text-lg sm:text-xl text-muted-foreground"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              {profile.title}
+            </motion.p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-muted-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <motion.div 
+              className="flex items-center gap-1 hover:text-primary transition-colors"
+              whileHover={{ x: 5 }}
+            >
               <Mail className="h-4 w-4" />
-              <a href="mailto:haquedot@gmail.com">haquedot@gmail.com</a>
-            </div>
-            <div className="flex items-center gap-1">
+              <a href={`mailto:${profile.email}`}>{profile.email}</a>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-1"
+              whileHover={{ x: 5 }}
+            >
               <MapPin className="h-4 w-4" />
-              <span>Hyderabad, India</span>
-            </div>
-          </div>
+              <span>{profile.location}</span>
+            </motion.div>
+          </motion.div>
 
-          <p className="text-muted-foreground text-sm sm:text-base">
-            A goal-oriented software developer with experience in building web applications using modern technologies
-            like React, Next.js, and more. Seeking to leverage my technical skills to deliver exceptional user
-            experiences.
-          </p>
+          <motion.p 
+            className="text-muted-foreground text-sm sm:text-base"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            {profile.bio}
+          </motion.p>
 
-          <div className="flex flex-wrap gap-2 sm:gap-3">
-            <Link
-              href="/MerajResumeFR.pdf"
-              target="_blank"
-              download
-            >
-              <Button size="sm" className="text-xs sm:text-sm">
-                <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Resume
-              </Button>
-            </Link>
-            <Link
-              href="https://github.com/haquedot"
-              target="_blank"
-            >
-              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <Github className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </Link>
-            <Link
-              href="mailto:haquedot@gmail.com"
-              target="_blank"
-            >
-              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </Link>
-            <Link
-              href="https://x.com/haquedot"
-              target="_blank"
-            >
-              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <RiTwitterXLine className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </Link>
-            <Link
-              href="https://www.linkedin.com/in/haquedot/"
-              target="_blank"
-            >
-              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                <Linkedin className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </Link>
-          </div>
+          <motion.div 
+            className="flex flex-wrap gap-2 sm:gap-3"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.div custom={0} variants={buttonVariants}>
+              <Link
+                href={profile.resumePath}
+                target="_blank"
+                download
+              >
+                <motion.div {...hoverScale} {...tapScale}>
+                  <Button size="sm" className="text-xs sm:text-sm">
+                    <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Resume
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+            
+            <motion.div custom={1} variants={buttonVariants}>
+              <Link
+                href="https://github.com/haquedot"
+                target="_blank"
+              >
+                <motion.div {...hoverScale} {...tapScale}>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <Github className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+            
+            <motion.div custom={2} variants={buttonVariants}>
+              <Link
+                href={`mailto:${profile.email}`}
+                target="_blank"
+              >
+                <motion.div {...hoverScale} {...tapScale}>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+            
+            <motion.div custom={3} variants={buttonVariants}>
+              <Link
+                href="https://x.com/haquedot"
+                target="_blank"
+              >
+                <motion.div {...hoverScale} {...tapScale}>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <RiTwitterXLine className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+            
+            <motion.div custom={4} variants={buttonVariants}>
+              <Link
+                href="https://www.linkedin.com/in/haquedot/"
+                target="_blank"
+              >
+                <motion.div {...hoverScale} {...tapScale}>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <Linkedin className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+          </motion.div>
         </motion.div>
 
         <motion.div
@@ -110,8 +181,9 @@ export default function Hero() {
             <div className="absolute inset-0 grid grid-cols-2 gap-2 sm:gap-4 p-2 sm:p-4">
               {/* Top Left - React Logo */}
               <motion.div
-                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
+                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center hover:bg-muted/80 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
                 <motion.div
@@ -129,9 +201,10 @@ export default function Hero() {
 
               {/* Top Right - Node.js */}
               <motion.div
-                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center"
+                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center hover:bg-muted/80 transition-colors"
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}
+                whileHover={{ y: -8 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
@@ -139,15 +212,16 @@ export default function Hero() {
                   ease: "easeInOut"
                 }}
               >
-                <div className="text-4xl">
+                <motion.div className="text-4xl">
                   <RiNextjsFill />
-                </div>
+                </motion.div>
               </motion.div>
 
               {/* Bottom Left - Database */}
               <motion.div
-                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
+                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center hover:bg-muted/80 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <motion.div
                   animate={{ y: [0, -5, 0] }}
@@ -164,7 +238,9 @@ export default function Hero() {
 
               {/* Bottom Right - TypeScript */}
               <motion.div
-                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center"
+                className="bg-muted rounded-lg p-2 sm:p-4 flex items-center justify-center hover:bg-muted/80 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 animate={{
                   boxShadow: [
                     "0 0 0 0px rgba(49, 130, 206, 0.1)",

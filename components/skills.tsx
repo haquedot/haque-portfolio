@@ -1,43 +1,35 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { FaBootstrap, FaCss3, FaGitAlt, FaGithub, FaHtml5, FaJs, FaReact } from "react-icons/fa";
-import { SiMongodb, SiMysql } from "react-icons/si";
-import { RiNextjsFill, RiTailwindCssFill } from "react-icons/ri";
-import { VscVscode } from "react-icons/vsc";
-import { IoLogoFigma, IoLogoVercel } from "react-icons/io5";
+import { skillsData } from "@/constants/skills"
+import { FaBootstrap, FaCss3, FaGitAlt, FaGithub, FaHtml5, FaJs, FaReact } from "react-icons/fa"
+import { SiMongodb, SiMysql } from "react-icons/si"
+import { RiNextjsFill, RiTailwindCssFill } from "react-icons/ri"
+import { VscVscode } from "react-icons/vsc"
+import { IoLogoFigma, IoLogoVercel } from "react-icons/io5"
+import { containerVariants, itemVariants, hoverLift, float } from "@/lib/animations"
 
-const skillCategories = [
-  {
-    title: "Front End",
-    skills: [
-      { name: "JavaScript", icon: <FaJs className="text-yellow-400" /> },
-      { name: "React.js", icon: <FaReact className="text-blue-500" /> },
-      { name: "Next.js", icon: <RiNextjsFill className="text-black dark:text-white" /> },
-      { name: "HTML", icon: <FaHtml5 className="text-orange-500" /> },
-      { name: "CSS", icon: <FaCss3 className="text-blue-500" /> },
-      { name: "Bootstrap", icon: <FaBootstrap className="text-purple-500" /> },
-      { name: "Tailwind CSS", icon: <RiTailwindCssFill className="text-cyan-400" /> },
-    ],
-  },
-  {
-    title: "Databases",
-    skills: [
-      { name: "MongoDB", icon: <SiMongodb className="text-green-500" /> },
-      { name: "MySQL", icon: <SiMysql className="text-blue-600" /> },
-    ],
-  },
-  {
-    title: "Tools & Platforms",
-    skills: [
-      { name: "Git", icon: <FaGitAlt className="text-orange-600" /> },
-      { name: "GitHub", icon: <FaGithub className="text-black dark:text-white" /> },
-      { name: "VS Code", icon: <VscVscode className="text-blue-500" /> },
-      { name: "Figma", icon: <IoLogoFigma className="text-purple-600" /> },
-      { name: "Vercel", icon: <IoLogoVercel className="text-black dark:text-white" /> },
-    ],
-  },
-]
+const iconMap: Record<string, React.ReactNode> = {
+  FaJs: <FaJs />,
+  FaReact: <FaReact />,
+  RiNextjsFill: <RiNextjsFill />,
+  FaHtml5: <FaHtml5 />,
+  FaCss3: <FaCss3 />,
+  FaBootstrap: <FaBootstrap />,
+  RiTailwindCssFill: <RiTailwindCssFill />,
+  SiMongodb: <SiMongodb />,
+  SiMysql: <SiMysql />,
+  FaGitAlt: <FaGitAlt />,
+  FaGithub: <FaGithub />,
+  VscVscode: <VscVscode />,
+  IoLogoFigma: <IoLogoFigma />,
+  IoLogoVercel: <IoLogoVercel />,
+}
+
+const skillItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+}
 
 export default function Skills() {
   const container = {
@@ -89,7 +81,7 @@ export default function Skills() {
           whileInView="show"
           viewport={{ once: true }}
         >
-          {skillCategories.map((category, index) => (
+          {skillsData.map((category, index) => (
             <motion.div
               key={index}
               variants={item}
@@ -118,16 +110,32 @@ export default function Skills() {
                         w-14 h-14 rounded-full bg-muted flex items-center justify-center text-xl
                         group-hover:bg-muted/50 transition-colors duration-300
                         border border-transparent group-hover:border-primary/20
+                        cursor-pointer
+                        ${skill.color}
                       `}
                       whileHover={{
-                        y: -5,
-                        transition: { type: "spring", stiffness: 300 }
+                        y: -8,
+                        scale: 1.1,
+                        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
+                        transition: { type: "spring", stiffness: 300, damping: 20 }
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      animate={{
+                        y: [0, -3, 0],
+                      }}
+                      transition={{
+                        duration: 3 + idx * 0.2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: idx * 0.1
                       }}
                     >
-                      {skill.icon}
+                      {iconMap[skill.iconName]}
                     </motion.div>
                     <motion.span 
                       className="text-xs text-center text-muted-foreground group-hover:text-foreground transition-colors duration-300"
+                      initial={{ opacity: 1 }}
+                      whileHover={{ opacity: 1 }}
                     >
                       {skill.name}
                     </motion.span>

@@ -1,0 +1,34 @@
+# Robots.txt for Merajul Haque Portfolio
+# Last updated: December 11, 2025
+
+# Allow all crawlers by default
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /*.json$
+Disallow: /admin/
+
+# Crawl delay (1 second for responsible crawling)
+Crawl-delay: 1
+Request-rate: 1/1s
+
+# Specific search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Disallow bad bots
+User-agent: MJ12bot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://www.merajulhaque.com/sitemap.xml
