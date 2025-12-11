@@ -36,7 +36,7 @@ export default function RootLayout({
         <BreadcrumbSchema />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AdHeader
             title="🚀 MatchWise"
             description="Optimize Your Resume with AI"

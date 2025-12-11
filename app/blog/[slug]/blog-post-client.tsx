@@ -2,7 +2,7 @@
 
 import { blogPosts } from '@/constants/blog';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, Share2, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Share2, Copy, Check, Twitter, Linkedin, MessageCircle, Facebook } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
@@ -167,9 +167,11 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
     return () => observer.disconnect();
   }, [headings]);
 
-  const handleShare = (platform: 'twitter' | 'linkedin' | 'copy') => {
+  const handleShare = (platform: 'twitter' | 'linkedin' | 'copy' | 'whatsapp' | 'facebook' | 'email') => {
     const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/blog/${post.slug}`;
     const text = `Read "${post.title}" by ${post.author}`;
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent(text);
 
     if (platform === 'copy') {
       navigator.clipboard.writeText(url);
@@ -177,14 +179,29 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
       setTimeout(() => setCopied(false), 2000);
     } else if (platform === 'twitter') {
       window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-        '_blank'
+        `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+        '_blank',
+        'width=550,height=420'
       );
     } else if (platform === 'linkedin') {
       window.open(
-        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+        `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+        '_blank',
+        'width=550,height=420'
+      );
+    } else if (platform === 'facebook') {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+        '_blank',
+        'width=550,height=420'
+      );
+    } else if (platform === 'whatsapp') {
+      window.open(
+        `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
         '_blank'
       );
+    } else if (platform === 'email') {
+      window.location.href = `mailto:?subject=${encodedText}&body=${encodedText}%0A%0A${encodedUrl}`;
     }
   };
 
@@ -211,34 +228,80 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
           </h1>
 
           {/* Meta Information */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-muted-foreground mb-6 pb-6 border-b">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <time dateTime={post.date}>
-                {new Date(post.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
+          <div className="flex flex-col gap-6 text-muted-foreground mb-6 pb-6 border-b">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <time dateTime={post.date}>
+                  {new Date(post.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                {post.readTime} min read
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              {post.readTime} min read
+            <div className="flex flex-col gap-3">
+              <p className="text-sm font-medium">Share this post:</p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('copy')}
+                  title="Copy link to clipboard"
+                  className="w-max flex items-center justify-center"
+                >
+                  <Copy className="h-4 w-4" />
+                  <span className="ml-2 hidden sm:inline text-xs">Copy</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('twitter')}
+                  title="Share on Twitter"
+                  className="w-max flex items-center justify-center"
+                >
+                  <Twitter className="h-4 w-4" />
+                  <span className="ml-2 hidden sm:inline text-xs">Twitter</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('linkedin')}
+                  title="Share on LinkedIn"
+                  className="w-max flex items-center justify-center"
+                >
+                  <Linkedin className="h-4 w-4" />
+                  <span className="ml-2 hidden sm:inline text-xs">LinkedIn</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('facebook')}
+                  title="Share on Facebook"
+                  className="w-max flex items-center justify-center"
+                >
+                  <Facebook className="h-4 w-4" />
+                  <span className="ml-2 hidden sm:inline text-xs">Facebook</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare('whatsapp')}
+                  title="Share on WhatsApp"
+                  className="w-max flex items-center justify-center"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="ml-2 hidden sm:inline text-xs">WhatsApp</span>
+                </Button>
+              </div>
             </div>
-
-            <div className="flex-grow" />
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleShare('copy')}
-              className="w-full sm:w-auto"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              {copied ? 'Copied!' : 'Share'}
-            </Button>
           </div>
 
           {/* Tags */}
