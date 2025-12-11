@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next/types"
+import type { Metadata, Viewport } from "next/types"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -8,20 +8,19 @@ import AdHeader from "@/components/ad-header"
 import { Suspense } from "react"
 import Loading from "@/components/loading"
 import { Analytics } from "@vercel/analytics/next"
+import { baseMetadata } from "@/lib/metadata"
+import { PersonSchema, WebSiteSchema, BreadcrumbSchema } from "@/lib/schema-markup"
 
 const inter = Inter({ subsets: ["latin"] })
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+}
+
 export const metadata: Metadata = {
-  title: "Merajul Haque - Software Developer",
-  description: "Portfolio website of Merajul Haque, a Software Developer",
-  icons: {
-    icon: [
-      { url: '/haquedot.svg', sizes: 'any', type: 'image/x-icon' },
-      { url: '/haquedot.svg', sizes: '16x16', type: 'image/png' },
-      { url: '/haquedot.svg', sizes: '32x32', type: 'image/png' },
-    ],
-    apple: '/haquedot.svg',
-  },
+  ...baseMetadata,
 }
 
 export default function RootLayout({
@@ -30,7 +29,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning style={{ scrollBehavior: "smooth" }}>
+      <head>
+        <PersonSchema />
+        <WebSiteSchema />
+        <BreadcrumbSchema />
+      </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AdHeader

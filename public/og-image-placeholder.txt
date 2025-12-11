@@ -1,0 +1,30 @@
+PLACEHOLDER: og-image.png (1200x630px)
+
+This is a placeholder file indicating where the OG image should be created.
+The actual PNG file should be generated using an image tool like:
+
+1. Canva (recommended for quick design):
+   - Go to https://www.canva.com/
+   - Create new design
+   - Select "Custom size" → 1200 x 630 px
+   - Add your name and tagline
+   - Download as PNG
+   - Save to public/og-image.png
+
+2. Python/PIL:
+   - Create a 1200x630 image
+   - Add your portfolio branding
+   - Export as PNG
+
+3. Design Tools:
+   - Figma
+   - Adobe Express
+   - Any online image editor
+
+Recommended design elements:
+- Dark background (matches your portfolio theme)
+- Large text: "Merajul Haque"
+- Subtitle: "Full Stack Developer"
+- Tech stack keywords: React, Next.js, Node.js
+- Your website URL at bottom
+- Professional gradient or color scheme

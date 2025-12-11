@@ -1,23 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-
-const education = [
-  {
-    institution: "Maulana Azad National Urdu University, Hyderabad",
-    degree: "B.Tech (Lateral Entry), Computer Science",
-    period: "Oct 2022 - May 2025",
-    gpa: "CGPA: 8.71/10",
-    icon: "🎓",
-  },
-  {
-    institution: "Maulana Azad National Urdu University, Hyderabad",
-    degree: "Diploma in Computer Science and Engineering",
-    period: "Aug 2019 - Jun 2022",
-    gpa: "CGPA: 9.78/10",
-    icon: "🏫",
-  },
-]
+import { educationData } from "@/constants/education"
+import { containerVariants, itemVariants, hoverScale } from "@/lib/animations"
 
 export default function Education() {
   return (
@@ -28,22 +13,46 @@ export default function Education() {
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-3xl font-bold mb-10">Education</h2>
+        <motion.h2 
+          className="text-3xl font-bold mb-10"
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          Education
+        </motion.h2>
 
-        <div className="space-y-8">
-          {education.map((edu, index) => (
+        <motion.div 
+          className="space-y-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
+          {educationData.map((edu, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex gap-4"
+              variants={itemVariants}
+              className="flex gap-4 p-4 rounded-lg bg-muted/60 transition-colors"
+              whileHover={{ 
+                x: 5,
+                transition: { type: "spring", stiffness: 300 }
+              }}
             >
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl">
+              <motion.div 
+                className="flex-shrink-0 w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl"
+                {...hoverScale}
+              >
                 {edu.icon}
-              </div>
-              <div className="space-y-1">
+              </motion.div>
+              <motion.div 
+                className="space-y-1"
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
                 <h3 className="text-lg font-semibold">{edu.institution}</h3>
                 <p className="text-muted-foreground">{edu.degree}</p>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-muted-foreground">
@@ -55,10 +64,10 @@ export default function Education() {
                     </>
                   )}
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   )
