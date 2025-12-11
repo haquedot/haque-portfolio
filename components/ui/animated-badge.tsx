@@ -13,6 +13,7 @@ interface AnimatedBadgeProps extends HTMLAttributes<HTMLDivElement> {
 
 const AnimatedBadge = React.forwardRef<HTMLDivElement, AnimatedBadgeProps>(
   ({ children, variant = "default", delay = 0, className, ...props }, ref) => {
+    const { onDrag, onDragStart, onDragEnd, onDragCapture, ...motionProps } = props
     return (
       <motion.div
         ref={ref}
@@ -26,9 +27,8 @@ const AnimatedBadge = React.forwardRef<HTMLDivElement, AnimatedBadgeProps>(
         }}
         whileTap={{ scale: 0.95 }}
         transition={{ delay, duration: 0.3 }}
-        {...props}
       >
-        <Badge variant={variant} className={className}>
+        <Badge variant={variant} className={className} {...motionProps}>
           {children}
         </Badge>
       </motion.div>

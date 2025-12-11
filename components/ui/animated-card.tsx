@@ -31,11 +31,8 @@ const AnimatedCard = React.forwardRef<
       whileHover={whileHover ? { 
         y: -8,
         boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
-      } : {}}
-      transition={{
-        initial: { delay, duration: 0.5 },
-        hover: { type: "spring", stiffness: 300, damping: 20 }
-      }}
+      } : undefined}
+      transition={{ delay, duration: 0.5, type: "spring", stiffness: 300, damping: 20 }}
       className="w-full"
     >
       <Card className={className}>
