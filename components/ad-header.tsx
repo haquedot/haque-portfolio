@@ -40,7 +40,7 @@ export default function AdHeader({
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="w-full bg-gradient-to-r from-emerald-400 to-emerald-600 text-white overflow-hidden"
+          className="w-full bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white overflow-hidden"
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between py-3">
@@ -51,7 +51,7 @@ export default function AdHeader({
                       {title}
                     </h3>
                     {description && (
-                      <p className="text-xs sm:text-sm text-white/90 truncate">
+                      <p className="text-xs sm:text-sm text-black/90 dark:text-white/90 truncate">
                         {description}
                       </p>
                     )}
