@@ -38,7 +38,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AdHeader
-            title="🚀 MatchWise"
+            logo="/matchwize.svg"
+            logoDark="/matchwizeDark.svg"
+            title="Matchwize"
             description="Optimize Your Resume with AI"
             buttonText="View"
             href="https://matchwize.com/"
@@ -46,7 +48,7 @@ export default function RootLayout({
             dismissible={true}
           />
           <Suspense fallback={<Loading />}>
-            <Analytics/>
+            <Analytics />
             <Header />
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">{children}</main>
             <footer className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-muted-foreground">

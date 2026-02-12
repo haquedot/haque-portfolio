@@ -5,8 +5,11 @@ import Link from "next/link"
 import { X, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 
 interface AdHeaderProps {
+  logo?: string
+  logoDark?: string
   title: string
   description?: string
   buttonText: string
@@ -17,6 +20,8 @@ interface AdHeaderProps {
 }
 
 export default function AdHeader({
+  logo,
+  logoDark,
   title,
   description,
   buttonText,
@@ -47,6 +52,20 @@ export default function AdHeader({
               <div className="flex items-center space-x-4 flex-1 min-w-0">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                    <Image
+                      src={ logo || "/matchwize-logo.png"}
+                      alt={`${title} logo`}
+                      className="dark:hidden h-8 w-8"
+                      width={32}
+                      height={32}
+                    />
+                    <Image
+                      src={logoDark || "/matchwize-logo-dark.png"}
+                      alt={`${title} logo`}
+                      className="hidden dark:block h-8 w-8"
+                      width={32}
+                      height={32}
+                    />
                     <h3 className="font-semibold text-sm sm:text-base truncate">
                       {title}
                     </h3>
@@ -62,7 +81,7 @@ export default function AdHeader({
                   asChild
                   size="sm"
                   variant="secondary"
-                  className="bg-white text-emerald-600 hover:bg-white/90 shrink-0"
+                  className="bg-white dark:bg-neutral-800 text-emerald-600 hover:bg-white/90 shrink-0"
                 >
                   {isExternal ? (
                     <a
@@ -87,7 +106,7 @@ export default function AdHeader({
                   variant="ghost"
                   size="sm"
                   onClick={handleClose}
-                  className="text-white hover:bg-white/20 ml-2 shrink-0 h-8 w-8 p-0"
+                  className="text-neutral-800 dark:text-white hover:bg-white/20 ml-2 shrink-0 h-8 w-8 p-0"
                   aria-label="Dismiss announcement"
                 >
                   <X className="h-4 w-4" />

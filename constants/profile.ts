@@ -5,7 +5,7 @@ export const profile = {
   phone: "+91 75024 61630",
   location: "Hyderabad, India",
   bio: "A goal-oriented software developer with experience in building web applications using modern technologies like React, Next.js, and more. Seeking to leverage my technical skills to deliver exceptional user experiences.",
-  resumePath: "/MerajResumeFR.pdf",
+  resumePath: "/MdMerajulHaqueResume.pdf",
   socials: [
     {
       name: "GitHub",
