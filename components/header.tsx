@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Moon, Sun, Menu, X } from "lucide-react"
@@ -58,6 +58,53 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const themeButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Smooth theme transition with circular reveal effect
+  const toggleTheme = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const newTheme = resolvedTheme === "dark" ? "light" : "dark"
+    
+    // Check if View Transitions API is supported
+    if (!document.startViewTransition) {
+      setTheme(newTheme)
+      return
+    }
+
+    // Get button position for circular reveal
+    const button = e.currentTarget
+    const rect = button.getBoundingClientRect()
+    const x = rect.left + rect.width / 2
+    const y = rect.top + rect.height / 2
+
+    // Calculate the maximum radius needed to cover the entire viewport
+    const maxRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    )
+
+    // Start view transition
+    const transition = document.startViewTransition(() => {
+      setTheme(newTheme)
+    })
+
+    // Animate the transition with circular reveal
+    await transition.ready
+
+    // Create circular reveal animation
+    document.documentElement.animate(
+      {
+        clipPath: [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${maxRadius}px at ${x}px ${y}px)`,
+        ],
+      },
+      {
+        duration: 600,
+        easing: "ease-in-out",
+        pseudoElement: "::view-transition-new(root)",
+      }
+    )
+  }
 
   // This useEffect ensures we don't render theme-specific elements until after hydration
   useEffect(() => {
@@ -144,9 +191,10 @@ export default function Header() {
               transition={{ type: "spring", stiffness: 200 }}
             >
               <Button
+                ref={themeButtonRef}
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                onClick={toggleTheme}
                 aria-label="Toggle theme"
                 {...tapScale}
               >
@@ -161,7 +209,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                onClick={toggleTheme}
                 aria-label="Toggle theme"
               >
                 {resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

@@ -8,6 +8,21 @@
     color-scheme: light;
   }
 
+  /* View Transitions API for smooth theme transitions */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+
+  ::view-transition-new(root) {
+    z-index: 999;
+  }
+
   /* Smooth theme transitions */
   html,
   body,

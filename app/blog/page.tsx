@@ -8,6 +8,7 @@ import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { BlogSearch } from '@/components/blog-search';
 import { type SearchResult } from '@/lib/blog-search';
+import { motion } from 'framer-motion';
 
 export default function BlogPage() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -54,25 +55,43 @@ export default function BlogPage() {
             <div className="flex flex-wrap gap-2 justify-center">
               <button
                 onClick={() => setSelectedTag(null)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedTag === null
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
+                className="relative px-4 py-2 rounded-full text-sm font-medium transition-colors z-10"
               >
-                All Posts
+                {selectedTag === null && (
+                  <motion.div
+                    layoutId="activeTag"
+                    className="absolute inset-0 bg-primary rounded-full"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <span className={`relative z-10 ${
+                  selectedTag === null
+                    ? 'text-primary-foreground'
+                    : 'text-muted-foreground'
+                }`}>
+                  All Posts
+                </span>
               </button>
               {allTags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedTag === tag
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
+                  className="relative px-4 py-2 rounded-full text-sm font-medium transition-colors hover:bg-muted/50 z-10"
                 >
-                  {tag}
+                  {selectedTag === tag && (
+                    <motion.div
+                      layoutId="activeTag"
+                      className="absolute inset-0 bg-primary rounded-full"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className={`relative z-10 ${
+                    selectedTag === tag
+                      ? 'text-primary-foreground'
+                      : 'text-muted-foreground'
+                  }`}>
+                    {tag}
+                  </span>
                 </button>
               ))}
             </div>
