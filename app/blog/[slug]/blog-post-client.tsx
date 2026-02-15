@@ -354,9 +354,19 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
               h3: ({ node, ...props }) => (
                 <h3 className="text-xl font-bold text-foreground mt-4 mb-2" {...props} />
               ),
-              p: ({ node, ...props }) => (
-                <p className="text-muted-foreground leading-relaxed mb-4" {...props} />
-              ),
+              p: ({ node, children, ...props }) => {
+                // Check if children contains code blocks or other block elements
+                // If so, render as div instead of p to avoid nesting issues
+                const hasBlockElement = node?.children?.some((child: any) => 
+                  child.type === 'element' && (child.tagName === 'pre' || child.tagName === 'div')
+                );
+                
+                if (hasBlockElement) {
+                  return <div className="text-muted-foreground leading-relaxed mb-4" {...props}>{children}</div>;
+                }
+                
+                return <p className="text-muted-foreground leading-relaxed mb-4" {...props}>{children}</p>;
+              },
               ul: ({ node, ...props }) => (
                 <ul className="list-disc list-outside ml-6 text-muted-foreground mb-4 space-y-2" {...props} />
               ),
@@ -366,11 +376,20 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
               li: ({ node, ...props }) => (
                 <li className="text-muted-foreground leading-relaxed" {...props} />
               ),
+              pre: ({ node, children, ...props }: any) => {
+                // Extract the code element from pre
+                const codeElement = children?.props;
+                if (codeElement && codeElement.className) {
+                  const match = /language-(\w+)/.exec(codeElement.className || '');
+                  const language = match ? match[1] : 'text';
+                  const codeString = String(codeElement.children).replace(/\n$/, '');
+                  return <CodeBlock language={language} code={codeString} />;
+                }
+                // Fallback for pre without code
+                return <pre className="bg-muted p-4 rounded overflow-x-auto" {...props}>{children}</pre>;
+              },
               code: ({ node, inline, className, children, ...props }: any) => {
-                const match = /language-(\w+)/.exec(className || '');
-                const language = match ? match[1] : 'text';
-                const codeString = String(children).replace(/\n$/, '');
-
+                // Only handle inline code here, block code is handled by pre
                 if (inline) {
                   return (
                     <code
@@ -381,9 +400,11 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
                     </code>
                   );
                 }
-
+                // For non-inline code without pre wrapper (shouldn't happen normally)
                 return (
-                  <CodeBlock language={language} code={codeString} />
+                  <code className="bg-muted px-2 py-1 rounded text-sm font-mono text-primary" {...props}>
+                    {children}
+                  </code>
                 );
               },
               blockquote: ({ node, ...props }) => (
