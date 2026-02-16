@@ -20,6 +20,1399 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: "6",
+    title: "Next.js Project Structure Explained (app folder, public, components)",
+    slug: "nextjs-project-structure-explained-app-folder-public-components",
+    excerpt:
+      "A comprehensive guide to understanding Next.js project structure, including the app folder with App Router, public directory for static assets, and best practices for organizing components in modern Next.js applications.",
+    content: `
+# Next.js Project Structure Explained (app folder, public, components)
+
+Understanding the project structure is fundamental to building maintainable and scalable Next.js applications. With Next.js 13+ introducing the App Router and new conventions, it's more important than ever to understand how to organize your code effectively. This comprehensive guide will walk you through every aspect of Next.js project structure in 2026.
+
+## Why Project Structure Matters
+
+A well-organized project structure provides:
+
+- **Maintainability** - Easy to find and update code
+- **Scalability** - Structure that grows with your application
+- **Team Collaboration** - Clear conventions for multiple developers
+- **Performance** - Proper code splitting and optimization
+- **Developer Experience** - Faster development and debugging
+
+Poor structure leads to technical debt, difficult refactoring, and decreased productivity. Let's ensure your Next.js project starts on the right foundation.
+
+## Complete Next.js Project Overview
+
+When you create a new Next.js 15 project (latest in 2026), you'll see this structure:
+
+\`\`\`
+my-nextjs-app/
+├── app/                    # App Router directory (Next.js 13+)
+├── public/                 # Static assets
+├── components/             # Reusable components (custom)
+├── lib/                    # Utility functions (custom)
+├── types/                  # TypeScript type definitions (custom)
+├── hooks/                  # Custom React hooks (custom)
+├── styles/                 # Global stylesheets (optional)
+├── config/                 # Configuration files (custom)
+├── constants/              # Constants and enums (custom)
+├── node_modules/           # Dependencies (auto-generated)
+├── .next/                  # Build output (auto-generated)
+├── .env.local             # Environment variables
+├── next.config.js         # Next.js configuration
+├── package.json           # Project dependencies
+├── tsconfig.json          # TypeScript configuration
+├── tailwind.config.ts     # Tailwind CSS config (if using Tailwind)
+└── postcss.config.js      # PostCSS config (if using Tailwind)
+\`\`\`
+
+## The App Folder (App Router) - In-Depth
+
+The \`app\` directory is the heart of your Next.js application when using the App Router (default since Next.js 13).
+
+### Basic Structure
+
+\`\`\`
+app/
+├── layout.tsx             # Root layout (required)
+├── page.tsx               # Home page (/)
+├── loading.tsx            # Loading UI
+├── error.tsx              # Error UI
+├── not-found.tsx          # 404 page
+├── globals.css            # Global styles
+├── favicon.ico            # Favicon
+└── sitemap.ts             # Sitemap generation
+\`\`\`
+
+### 1. layout.tsx - Root Layout
+
+The root layout wraps your entire application and is **required**.
+
+\`\`\`tsx
+// app/layout.tsx
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'My Next.js App',
+  description: 'Built with Next.js 15',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        {/* You can add global components here */}
+        <header>Global Header</header>
+        {children}
+        <footer>Global Footer</footer>
+      </body>
+    </html>
+  );
+}
+\`\`\`
+
+**Key Points:**
+- Must return \`<html>\` and \`<body>\` tags
+- Applies to all routes
+- Can include global providers (theme, authentication)
+- Persists across navigation
+
+### 2. page.tsx - Routes
+
+The \`page.tsx\` file creates a publicly accessible route.
+
+\`\`\`tsx
+// app/page.tsx → /
+export default function HomePage() {
+  return <h1>Home Page</h1>;
+}
+
+// app/about/page.tsx → /about
+export default function AboutPage() {
+  return <h1>About Page</h1>;
+}
+
+// app/blog/[slug]/page.tsx → /blog/:slug
+export default function BlogPost({ params }: { params: { slug: string } }) {
+  return <h1>Blog Post: {params.slug}</h1>;
+}
+\`\`\`
+
+### 3. Nested Layouts
+
+Create layouts for specific route segments:
+
+\`\`\`
+app/
+├── layout.tsx              # Root layout
+├── page.tsx                # Home page
+└── dashboard/
+    ├── layout.tsx          # Dashboard layout
+    ├── page.tsx            # /dashboard
+    ├── settings/
+    │   └── page.tsx        # /dashboard/settings
+    └── profile/
+        └── page.tsx        # /dashboard/profile
+\`\`\`
+
+\`\`\`tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex">
+      <aside className="w-64">
+        <nav>{/* Dashboard sidebar */}</nav>
+      </aside>
+      <main className="flex-1">{children}</main>
+    </div>
+  );
+}
+\`\`\`
+
+**Layout nesting** - Layouts nest inside each other, creating a component hierarchy.
+
+### 4. Special Files in App Router
+
+| File | Purpose | Usage |
+|------|---------|-------|
+| \`layout.tsx\` | Shared UI for route segment | Wraps pages and nested layouts |
+| \`page.tsx\` | Unique page content | Creates a route |
+| \`loading.tsx\` | Loading UI with Suspense | Automatic loading states |
+| \`error.tsx\` | Error handling UI | Error boundaries |
+| \`not-found.tsx\` | 404 page | When notFound() is called |
+| \`template.tsx\` | Similar to layout but re-renders | When you need fresh state |
+| \`default.tsx\` | Fallback for parallel routes | Advanced routing |
+
+### 5. loading.tsx - Loading States
+
+\`\`\`tsx
+// app/dashboard/loading.tsx
+export default function Loading() {
+  return (
+    <div className="space-y-4">
+      <div className="h-8 bg-gray-200 rounded animate-pulse" />
+      <div className="h-64 bg-gray-200 rounded animate-pulse" />
+    </div>
+  );
+}
+\`\`\`
+
+This automatically wraps your page in \`<Suspense>\` and shows while data loads.
+
+### 6. error.tsx - Error Boundaries
+
+\`\`\`tsx
+// app/dashboard/error.tsx
+'use client'; // Error components must be Client Components
+
+import { useEffect } from 'react';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h2 className="text-2xl font-bold mb-4">Something went wrong!</h2>
+      <button
+        onClick={reset}
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+\`\`\`
+
+### 7. Route Groups
+
+Organize routes without affecting URL structure using parentheses:
+
+\`\`\`
+app/
+├── (marketing)/
+│   ├── about/
+│   │   └── page.tsx       # /about
+│   └── contact/
+│       └── page.tsx       # /contact
+├── (shop)/
+│   ├── products/
+│   │   └── page.tsx       # /products
+│   └── cart/
+│       └── page.tsx       # /cart
+└── (auth)/
+    ├── login/
+    │   └── page.tsx       # /login
+    └── register/
+        └── page.tsx       # /register
+\`\`\`
+
+Each group can have its own layout:
+
+\`\`\`tsx
+// app/(marketing)/layout.tsx
+export default function MarketingLayout({ children }) {
+  return (
+    <div>
+      <nav>{/* Marketing nav */}</nav>
+      {children}
+    </div>
+  );
+}
+
+// app/(shop)/layout.tsx
+export default function ShopLayout({ children }) {
+  return (
+    <div>
+      <nav>{/* Shop nav with cart */}</nav>
+      {children}
+    </div>
+  );
+}
+\`\`\`
+
+### 8. Dynamic Routes
+
+Create dynamic routes with square brackets:
+
+\`\`\`
+app/
+├── blog/
+│   ├── [slug]/
+│   │   └── page.tsx          # /blog/:slug
+│   └── [category]/
+│       └── [id]/
+│           └── page.tsx      # /blog/:category/:id
+└── products/
+    └── [...slug]/
+        └── page.tsx          # /products/* (catch-all)
+\`\`\`
+
+\`\`\`tsx
+// app/blog/[slug]/page.tsx
+export default function BlogPost({ params }: { params: { slug: string } }) {
+  return <h1>Post: {params.slug}</h1>;
+}
+
+// Generate static paths at build time
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+\`\`\`
+
+### 9. API Routes
+
+Create API endpoints in the App Router:
+
+\`\`\`
+app/
+└── api/
+    ├── posts/
+    │   └── route.ts          # /api/posts
+    ├── posts/
+    │   └── [id]/
+    │       └── route.ts      # /api/posts/:id
+    └── upload/
+        └── route.ts          # /api/upload
+\`\`\`
+
+\`\`\`tsx
+// app/api/posts/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const posts = await fetchPosts();
+  return NextResponse.json(posts);
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const post = await createPost(body);
+  return NextResponse.json(post, { status: 201 });
+}
+\`\`\`
+
+\`\`\`tsx
+// app/api/posts/[id]/route.ts
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const post = await getPost(params.id);
+  return NextResponse.json(post);
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  await deletePost(params.id);
+  return new NextResponse(null, { status: 204 });
+}
+\`\`\`
+
+### 10. Metadata and SEO
+
+Define metadata for better SEO:
+
+\`\`\`tsx
+// app/blog/[slug]/page.tsx
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const post = await getPost(params.slug);
+  
+  return {
+    title: post.title,
+    description: post.excerpt,
+    authors: [{ name: post.author }],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+      type: 'article',
+      publishedTime: post.date,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+    },
+  };
+}
+
+export default function BlogPost({ params }) {
+  // Component code
+}
+\`\`\`
+
+### 11. Server vs Client Components
+
+**Server Components (default):**
+\`\`\`tsx
+// app/dashboard/page.tsx - Server Component
+async function getData() {
+  const res = await fetch('https://api.example.com/data', {
+    cache: 'no-store', // SSR
+  });
+  return res.json();
+}
+
+export default async function Dashboard() {
+  const data = await getData();
+  return <div>{JSON.stringify(data)}</div>;
+}
+\`\`\`
+
+**Client Components:**
+\`\`\`tsx
+// app/components/Counter.tsx - Client Component
+'use client';
+
+import { useState } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </button>
+  );
+}
+\`\`\`
+
+**When to use Client Components:**
+- Event handlers (onClick, onChange, etc.)
+- State and lifecycle hooks (useState, useEffect)
+- Browser-only APIs (localStorage, window)
+- Custom hooks that depend on state/effects
+- React class components
+
+## The Public Folder
+
+The \`public\` folder stores **static assets** that are served directly without processing.
+
+### Structure
+
+\`\`\`
+public/
+├── images/
+│   ├── logo.svg
+│   ├── hero-bg.jpg
+│   └── avatars/
+│       └── default.png
+├── fonts/
+│   └── custom-font.woff2
+├── documents/
+│   └── terms.pdf
+├── favicon.ico
+├── robots.txt
+└── sitemap.xml
+\`\`\`
+
+### Usage
+
+Files in \`public\` are accessible from the root URL:
+
+\`\`\`tsx
+import Image from 'next/image';
+
+export default function Logo() {
+  // public/images/logo.svg → /images/logo.svg
+  return (
+    <Image
+      src="/images/logo.svg"
+      alt="Logo"
+      width={200}
+      height={50}
+    />
+  );
+}
+\`\`\`
+
+### Best Practices for Public Folder
+
+1. **Use Next.js Image Component** - For automatic optimization:
+   \`\`\`tsx
+   import Image from 'next/image';
+   
+   <Image src="/images/hero.jpg" alt="Hero" width={1200} height={600} />
+   \`\`\`
+
+2. **Organize by Type** - Create subfolders (images, documents, fonts)
+
+3. **Optimize Before Upload** - Compress images before adding to public
+
+4. **Use Descriptive Names** - \`hero-background.jpg\` instead of \`img1.jpg\`
+
+5. **robots.txt and sitemap.xml** - Always include for SEO:
+   \`\`\`txt
+   # public/robots.txt
+   User-agent: *
+   Allow: /
+   Sitemap: https://yoursite.com/sitemap.xml
+   \`\`\`
+
+6. **Favicon** - Include multiple sizes:
+   \`\`\`
+   public/
+   ├── favicon.ico
+   ├── favicon-16x16.png
+   ├── favicon-32x32.png
+   ├── apple-touch-icon.png
+   └── android-chrome-192x192.png
+   \`\`\`
+
+### What NOT to Put in Public
+
+- ❌ Source code or configuration files
+- ❌ Sensitive data or API keys
+- ❌ Files that need processing (TypeScript, SCSS)
+- ❌ Files with variable content
+- ❌ Private user uploads
+
+### Images: Public vs Import
+
+**Public folder (large, static images):**
+\`\`\`tsx
+<Image src="/images/hero.jpg" alt="Hero" width={1200} height={600} />
+\`\`\`
+
+**Import (small assets bundled with code):**
+\`\`\`tsx
+import logoImage from './logo.png';
+<Image src={logoImage} alt="Logo" />
+\`\`\`
+
+## Components Organization
+
+Components are the building blocks of your React application. Proper organization is crucial.
+
+### Recommended Structure
+
+\`\`\`
+components/
+├── ui/                     # Base UI components (shadcn/ui style)
+│   ├── button.tsx
+│   ├── input.tsx
+│   ├── card.tsx
+│   ├── dialog.tsx
+│   └── dropdown.tsx
+├── layout/                 # Layout components
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── Sidebar.tsx
+│   └── Navigation.tsx
+├── features/               # Feature-specific components
+│   ├── auth/
+│   │   ├── LoginForm.tsx
+│   │   ├── RegisterForm.tsx
+│   │   └── AuthProvider.tsx
+│   ├── blog/
+│   │   ├── BlogCard.tsx
+│   │   ├── BlogList.tsx
+│   │   └── BlogSearch.tsx
+│   └── dashboard/
+│       ├── StatsCard.tsx
+│       └── ActivityFeed.tsx
+├── shared/                 # Shared across features
+│   ├── Loading.tsx
+│   ├── ErrorBoundary.tsx
+│   └── EmptyState.tsx
+└── providers/              # Context providers
+    ├── ThemeProvider.tsx
+    ├── AuthProvider.tsx
+    └── ModalProvider.tsx
+\`\`\`
+
+### Component Types
+
+#### 1. UI Components (Base Components)
+
+Reusable, generic components following a design system:
+
+\`\`\`tsx
+// components/ui/button.tsx
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center rounded-md font-medium',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-white hover:bg-primary/90',
+        outline: 'border border-input hover:bg-accent',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-9 px-3',
+        lg: 'h-11 px-8',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
+
+export function Button({ className, variant, size, ...props }: ButtonProps) {
+  return (
+    <button
+      className={buttonVariants({ variant, size, className })}
+      {...props}
+    />
+  );
+}
+\`\`\`
+
+#### 2. Layout Components
+
+\`\`\`tsx
+// components/layout/Header.tsx
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+
+export function Header() {
+  const pathname = usePathname();
+  
+  return (
+    <header className="sticky top-0 z-50 border-b bg-background">
+      <nav className="container flex h-16 items-center justify-between">
+        <Link href="/" className="font-bold text-xl">
+          Logo
+        </Link>
+        <div className="flex gap-6">
+          <Link
+            href="/about"
+            className={pathname === '/about' ? 'font-bold' : ''}
+          >
+            About
+          </Link>
+          <Link
+            href="/blog"
+            className={pathname.startsWith('/blog') ? 'font-bold' : ''}
+          >
+            Blog
+          </Link>
+        </div>
+        <Button>Get Started</Button>
+      </nav>
+    </header>
+  );
+}
+\`\`\`
+
+#### 3. Feature Components
+
+\`\`\`tsx
+// components/features/blog/BlogCard.tsx
+import Image from 'next/image';
+import Link from 'next/link';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+
+interface BlogCardProps {
+  post: {
+    slug: string;
+    title: string;
+    excerpt: string;
+    image?: string;
+    tags: string[];
+    date: string;
+  };
+}
+
+export function BlogCard({ post }: BlogCardProps) {
+  return (
+    <Link href={\`/blog/\${post.slug}\`}>
+      <Card className="hover:shadow-lg transition-shadow">
+        {post.image && (
+          <Image
+            src={post.image}
+            alt={post.title}
+            width={400}
+            height={200}
+            className="rounded-t-lg"
+          />
+        )}
+        <CardHeader>
+          <div className="flex gap-2 mb-2">
+            {post.tags.slice(0, 2).map(tag => (
+              <Badge key={tag} variant="secondary">{tag}</Badge>
+            ))}
+          </div>
+          <CardTitle>{post.title}</CardTitle>
+          <CardDescription>{post.excerpt}</CardDescription>
+          <p className="text-sm text-muted-foreground mt-2">{post.date}</p>
+        </CardHeader>
+      </Card>
+    </Link>
+  );
+}
+\`\`\`
+
+### Component Naming Conventions
+
+1. **PascalCase** - All component files: \`BlogCard.tsx\`, \`UserProfile.tsx\`
+2. **Descriptive Names** - \`LoginForm.tsx\` not \`Form.tsx\`
+3. **Feature Prefix** - \`BlogCard.tsx\`, \`BlogList.tsx\`, \`BlogSearch.tsx\`
+4. **Avoid Generic Names** - Be specific about what the component does
+
+### Component File Organization
+
+For complex components, use a folder:
+
+\`\`\`
+components/
+└── features/
+    └── blog/
+        └── BlogEditor/
+            ├── index.tsx           # Main component
+            ├── BlogEditor.tsx      # Implementation
+            ├── BlogEditorToolbar.tsx
+            ├── BlogEditorPreview.tsx
+            └── BlogEditor.test.tsx
+\`\`\`
+
+### Barrel Exports
+
+Use index files to simplify imports:
+
+\`\`\`tsx
+// components/ui/index.ts
+export { Button } from './button';
+export { Input } from './input';
+export { Card, CardHeader, CardTitle } from './card';
+
+// Usage
+import { Button, Input, Card } from '@/components/ui';
+\`\`\`
+
+## Other Important Folders
+
+### lib/ - Utility Functions
+
+\`\`\`
+lib/
+├── utils.ts                # General utilities
+├── api.ts                  # API client
+├── db.ts                   # Database configuration
+├── auth.ts                 # Authentication utilities
+└── validations.ts          # Validation schemas
+\`\`\`
+
+\`\`\`tsx
+// lib/utils.ts
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function formatDate(date: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(date));
+}
+\`\`\`
+
+### hooks/ - Custom Hooks
+
+\`\`\`
+hooks/
+├── use-toast.ts
+├── use-media-query.ts
+├── use-local-storage.ts
+└── use-debounce.ts
+\`\`\`
+
+\`\`\`tsx
+// hooks/use-media-query.ts
+'use client';
+
+import { useEffect, useState } from 'react';
+
+export function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [query]);
+
+  return matches;
+}
+\`\`\`
+
+### types/ - TypeScript Types
+
+\`\`\`
+types/
+├── index.ts                # Export all types
+├── blog.ts                 # Blog-related types
+├── user.ts                 # User types
+└── api.ts                  # API response types
+\`\`\`
+
+\`\`\`tsx
+// types/blog.ts
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  author: Author;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Author {
+  id: string;
+  name: string;
+  avatar?: string;
+  bio?: string;
+}
+\`\`\`
+
+### constants/ - Constants and Configuration
+
+\`\`\`
+constants/
+├── routes.ts               # Route paths
+├── config.ts               # App configuration
+└── navigation.ts           # Navigation items
+\`\`\`
+
+\`\`\`tsx
+// constants/routes.ts
+export const ROUTES = {
+  HOME: '/',
+  ABOUT: '/about',
+  BLOG: '/blog',
+  BLOG_POST: (slug: string) => \`/blog/\${slug}\`,
+  DASHBOARD: '/dashboard',
+  LOGIN: '/login',
+} as const;
+
+// constants/config.ts
+export const APP_CONFIG = {
+  name: 'My Next.js App',
+  description: 'Built with Next.js 15',
+  url: 'https://myapp.com',
+  author: {
+    name: 'Your Name',
+    url: 'https://yoursite.com',
+  },
+  social: {
+    twitter: '@yourhandle',
+    github: 'yourusername',
+  },
+} as const;
+\`\`\`
+
+## Configuration Files
+
+### next.config.js
+
+\`\`\`js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Enable React Strict Mode
+  reactStrictMode: true,
+  
+  // Image optimization
+  images: {
+    domains: ['example.com', 'cdn.example.com'],
+    formats: ['image/avif', 'image/webp'],
+  },
+  
+  // Enable Turbopack (Next.js 15)
+  experimental: {
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  
+  // Environment variables
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+  
+  // Redirects
+  async redirects() {
+    return [
+      {
+        source: '/old-blog/:slug',
+        destination: '/blog/:slug',
+        permanent: true,
+      },
+    ];
+  },
+};
+
+export default nextConfig;
+\`\`\`
+
+### tsconfig.json
+
+\`\`\`json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/types/*": ["./types/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+\`\`\`
+
+## Best Practices
+
+### 1. Folder Naming Conventions
+
+- **lowercase with hyphens** - For route folders: \`blog-posts/\`, \`user-profile/\`
+- **PascalCase** - For component folders: \`BlogCard/\`, \`UserProfile/\`
+- **Use route groups** - For organization: \`(marketing)/\`, \`(dashboard)/\`
+
+### 2. Import Aliases
+
+Configure path aliases in \`tsconfig.json\`:
+
+\`\`\`json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/hooks/*": ["./hooks/*"]
+    }
+  }
+}
+\`\`\`
+
+Usage:
+\`\`\`tsx
+// Instead of
+import { Button } from '../../../components/ui/button';
+
+// Use
+import { Button } from '@/components/ui/button';
+\`\`\`
+
+### 3. Co-location
+
+Keep related files close together:
+
+\`\`\`
+app/
+└── blog/
+    ├── components/          # Blog-specific components
+    │   ├── BlogCard.tsx
+    │   └── BlogHeader.tsx
+    ├── lib/                 # Blog utilities
+    │   └── blog-utils.ts
+    ├── page.tsx
+    └── [slug]/
+        └── page.tsx
+\`\`\`
+
+### 4. Separation of Concerns
+
+\`\`\`tsx
+// ❌ Bad - Everything in one component
+export default function BlogPost() {
+  const [post, setPost] = useState(null);
+  
+  useEffect(() => {
+    fetch('/api/posts/1').then(r => r.json()).then(setPost);
+  }, []);
+  
+  return <div>{/* Complex JSX */}</div>;
+}
+
+// ✅ Good - Separated concerns
+// lib/api/posts.ts
+export async function getPost(id: string) {
+  const res = await fetch(\`/api/posts/\${id}\`);
+  return res.json();
+}
+
+// components/BlogPost.tsx
+export function BlogPost({ post }) {
+  return <article>{/* JSX */}</article>;
+}
+
+// app/blog/[slug]/page.tsx
+export default async function BlogPostPage({ params }) {
+  const post = await getPost(params.slug);
+  return <BlogPost post={post} />;
+}
+\`\`\`
+
+### 5. Private Folders
+
+Prefix folders with \`_\` to keep them out of routing:
+
+\`\`\`
+app/
+├── _components/         # Private, not routable
+│   └── AdminPanel.tsx
+├── _utils/             # Private utilities
+│   └── helpers.ts
+└── dashboard/
+    └── page.tsx
+\`\`\`
+
+### 6. Environment Variables
+
+\`\`\`bash
+# .env.local
+DATABASE_URL=postgresql://...
+API_KEY=secret_key
+
+# Public variables (accessible in browser)
+NEXT_PUBLIC_API_URL=https://api.example.com
+NEXT_PUBLIC_SITE_NAME=My App
+\`\`\`
+
+**Never commit \`.env.local\` to version control!**
+
+### 7. Static vs Dynamic
+
+Understand when to use static vs dynamic rendering:
+
+\`\`\`tsx
+// Static - Build time
+export default async function StaticPage() {
+  const data = await fetch('https://api.example.com/posts', {
+    cache: 'force-cache' // or no cache option (default)
+  });
+  return <div>{/* Render data */}</div>;
+}
+
+// Dynamic - Request time
+export default async function DynamicPage() {
+  const data = await fetch('https://api.example.com/user', {
+    cache: 'no-store' // Disable caching
+  });
+  return <div>{/* Render data */}</div>;
+}
+
+// Revalidate - Regenerate at interval
+export const revalidate = 3600; // Revalidate every hour
+
+export default async function RevalidatedPage() {
+  const data = await fetch('https://api.example.com/posts');
+  return <div>{/* Render data */}</div>;
+}
+\`\`\`
+
+## Common Patterns for 2026
+
+### 1. Server Actions
+
+\`\`\`tsx
+// app/actions/posts.ts
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { db } from '@/lib/db';
+
+export async function createPost(formData: FormData) {
+  const title = formData.get('title') as string;
+  const content = formData.get('content') as string;
+  
+  await db.posts.create({ title, content });
+  revalidatePath('/blog');
+  
+  return { success: true };
+}
+
+// app/blog/new/page.tsx
+import { createPost } from '@/app/actions/posts';
+
+export default function NewPost() {
+  return (
+    <form action={createPost}>
+      <input name="title" required />
+      <textarea name="content" required />
+      <button type="submit">Create Post</button>
+    </form>
+  );
+}
+\`\`\`
+
+### 2. Parallel Routes
+
+\`\`\`
+app/
+└── dashboard/
+    ├── @stats/
+    │   └── page.tsx
+    ├── @activity/
+    │   └── page.tsx
+    ├── layout.tsx
+    └── page.tsx
+\`\`\`
+
+\`\`\`tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+  stats,
+  activity,
+}: {
+  children: React.ReactNode;
+  stats: React.ReactNode;
+  activity: React.ReactNode;
+}) {
+  return (
+    <div>
+      {children}
+      <div className="grid grid-cols-2 gap-4">
+        {stats}
+        {activity}
+      </div>
+    </div>
+  );
+}
+\`\`\`
+
+### 3. Intercepting Routes
+
+\`\`\`
+app/
+├── photos/
+│   ├── [id]/
+│   │   └── page.tsx          # /photos/123
+│   └── (..)photos/
+│       └── [id]/
+│           └── page.tsx      # Intercepts /photos/123 when soft navigating
+\`\`\`
+
+### 4. Middleware
+
+\`\`\`tsx
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // Authentication check
+  const token = request.cookies.get('auth')?.value;
+  
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  // Add custom header
+  const response = NextResponse.next();
+  response.headers.set('x-custom-header', 'value');
+  
+  return response;
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/api/:path*'],
+};
+\`\`\`
+
+## Example: Complete E-commerce Structure
+
+Here's a real-world example of a complete Next.js e-commerce structure:
+
+\`\`\`
+ecommerce-app/
+├── app/
+│   ├── (shop)/                    # Shop routes
+│   │   ├── layout.tsx
+│   │   ├── page.tsx               # Home/Products listing
+│   │   ├── products/
+│   │   │   ├── [slug]/
+│   │   │   │   ├── page.tsx       # Product detail
+│   │   │   │   └── loading.tsx
+│   │   │   └── page.tsx
+│   │   ├── cart/
+│   │   │   └── page.tsx
+│   │   ├── checkout/
+│   │   │   └── page.tsx
+│   │   └── orders/
+│   │       └── [id]/
+│   │           └── page.tsx
+│   ├── (auth)/                    # Auth routes
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── register/
+│   │       └── page.tsx
+│   ├── dashboard/                 # Admin dashboard
+│   │   ├── @stats/
+│   │   ├── @orders/
+│   │   ├── layout.tsx
+│   │   ├── products/
+│   │   │   ├── new/
+│   │   │   │   └── page.tsx
+│   │   │   └── [id]/
+│   │   │       └── edit/
+│   │   │           └── page.tsx
+│   │   └── page.tsx
+│   ├── api/
+│   │   ├── products/
+│   │   │   ├── route.ts
+│   │   │   └── [id]/
+│   │   │       └── route.ts
+│   │   ├── cart/
+│   │   │   └── route.ts
+│   │   └── orders/
+│   │       └── route.ts
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/
+│   ├── ui/                        # Base components
+│   │   ├── button.tsx
+│   │   ├── input.tsx
+│   │   ├── card.tsx
+│   │   └── dialog.tsx
+│   ├── layout/
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Navigation.tsx
+│   │   └── MobileMenu.tsx
+│   ├── features/
+│   │   ├── products/
+│   │   │   ├── ProductCard.tsx
+│   │   │   ├── ProductGrid.tsx
+│   │   │   ├── ProductFilter.tsx
+│   │   │   └── ProductSearch.tsx
+│   │   ├── cart/
+│   │   │   ├── CartItem.tsx
+│   │   │   ├── CartSummary.tsx
+│   │   │   └── CartDrawer.tsx
+│   │   └── checkout/
+│   │       ├── CheckoutForm.tsx
+│   │       ├── ShippingForm.tsx
+│   │       └── PaymentForm.tsx
+│   └── providers/
+│       ├── CartProvider.tsx
+│       └── ThemeProvider.tsx
+├── lib/
+│   ├── api/
+│   │   ├── products.ts
+│   │   ├── cart.ts
+│   │   └── orders.ts
+│   ├── db.ts
+│   ├── utils.ts
+│   └── validations.ts
+├── hooks/
+│   ├── use-cart.ts
+│   ├── use-products.ts
+│   └── use-toast.ts
+├── types/
+│   ├── product.ts
+│   ├── cart.ts
+│   ├── order.ts
+│   └── user.ts
+├── constants/
+│   ├── routes.ts
+│   ├── config.ts
+│   └── categories.ts
+├── public/
+│   ├── images/
+│   │   ├── products/
+│   │   └── banners/
+│   ├── favicon.ico
+│   └── robots.txt
+├── .env.local
+├── next.config.js
+├── package.json
+├── tailwind.config.ts
+└── tsconfig.json
+\`\`\`
+
+## Debugging and Development Tips
+
+### 1. VS Code Extensions
+
+- **ES7+ React/Redux/React-Native snippets** - Quick component generation
+- **Tailwind CSS IntelliSense** - Autocomplete for Tailwind
+- **Error Lens** - Inline error display
+- **Auto Import** - Automatic import statements
+
+### 2. Useful npm Scripts
+
+\`\`\`json
+{
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "analyze": "ANALYZE=true next build"
+  }
+}
+\`\`\`
+
+### 3. Environment-Specific Configs
+
+\`\`\`
+.env                # Defaults
+.env.local          # Local overrides (gitignored)
+.env.development    # Development
+.env.production     # Production
+\`\`\`
+
+## Conclusion
+
+Understanding Next.js project structure is fundamental to building maintainable applications. Here's a quick recap:
+
+**App Folder:**
+- ✅ Uses file-system routing
+- ✅ Supports server and client components
+- ✅ Provides special files (layout, page, loading, error)
+- ✅ Enables nested layouts and route groups
+
+**Public Folder:**
+- ✅ Stores static assets served from root
+- ✅ Accessible via \`/filename\`
+- ✅ No processing or optimization (use Image component)
+
+**Components:**
+- ✅ Organized by type (ui, layout, features)
+- ✅ Use barrel exports for cleaner imports
+- ✅ Co-locate when possible
+- ✅ Follow naming conventions
+
+**Other Folders:**
+- ✅ \`lib/\` - Utilities and helpers
+- ✅ \`hooks/\` - Custom React hooks
+- ✅ \`types/\` - TypeScript definitions
+- ✅ \`constants/\` - Configuration and constants
+
+As your application grows, this structure will scale with you. Start simple, and add complexity only when needed. The key is consistency—once you establish patterns, stick to them across your project.
+
+**Pro Tip:** Don't over-engineer from the start. Begin with a simple structure and refactor as patterns emerge in your codebase.
+
+Happy coding with Next.js! 🚀
+    `,
+    author: "Merajul Haque",
+    date: "2026-02-16",
+    tags: ["Next.js", "Project Structure", "App Router", "Best Practices", "Tutorial"],
+    readTime: 25,
+    featured: true,
+  },
+  {
     id: "5",
     title: "Installing Next.js + create-next-app Setup (Beginner Guide)",
     slug: "installing-nextjs-create-next-app-setup-beginner-guide",

@@ -28,14 +28,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const currentYear = new Date().getFullYear()
+  
   return (
     <html lang="en" suppressHydrationWarning style={{ scrollBehavior: "smooth" }}>
-      <head>
+      <body className={inter.className}>
         <PersonSchema />
         <WebSiteSchema />
         <BreadcrumbSchema />
-      </head>
-      <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AdHeader
             logo="/matchwize.svg"
@@ -52,7 +52,7 @@ export default function RootLayout({
             <Header />
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">{children}</main>
             <footer className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Haque. All rights reserved.
+              © {currentYear} Haque. All rights reserved.
             </footer>
           </Suspense>
         </ThemeProvider>
