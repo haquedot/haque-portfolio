@@ -331,6 +331,10 @@ export function BlogPostClient({ post }: { post: typeof blogPosts[0] }) {
             components={{
               h1: ({ node, ...props }) => {
                 const text = props.children?.toString() || '';
+                // Skip the first h1 if it matches the post title (already displayed in header)
+                if (text === post.title) {
+                  return null;
+                }
                 const id = text.toLowerCase().replace(/\s+/g, '-');
                 return (
                   <h1

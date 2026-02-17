@@ -20,6 +20,1377 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: "7",
+    title: "Routing in Next.js App Router (Pages & Navigation Basics)",
+    slug: "routing-in-nextjs-app-router-pages-navigation-basics",
+    excerpt:
+      "Master the fundamentals of routing in Next.js App Router. Learn about file-based routing, dynamic routes, layouts, navigation components, and modern routing patterns that make Next.js the most powerful React framework in 2026.",
+    content: `
+# Routing in Next.js App Router (Pages & Navigation Basics)
+
+Routing is the backbone of any web application, and Next.js has revolutionized how we think about routing with its file-based system. With the App Router (stable since Next.js 13+), routing has become more powerful, intuitive, and feature-rich. In this comprehensive guide, we'll explore everything you need to know about routing and navigation in Next.js.
+
+## Table of Contents
+
+1. Introduction to App Router
+2. File-Based Routing Fundamentals
+3. Creating Pages
+4. Dynamic Routes
+5. Route Groups and Organization
+6. Navigation Methods
+7. Layouts and Nested Routes
+8. Loading and Error States
+9. Parallel and Intercepting Routes
+10. Route Handlers (API Routes)
+11. Best Practices and Tips
+
+## 1. Introduction to App Router
+
+The App Router, introduced in Next.js 13 and now the default in Next.js 15, represents a paradigm shift in how we build Next.js applications. It's built on React Server Components and provides several advantages:
+
+### Why App Router?
+
+**Server-First Architecture**
+- Built on React Server Components by default
+- Automatic code splitting at the route level
+- Better initial page load performance
+- Reduced JavaScript bundle size
+
+**Enhanced Developer Experience**
+- Intuitive file-based routing
+- Colocation of data fetching with components
+- Built-in loading and error handling
+- Nested layouts that preserve state
+
+**Modern Features**
+- Streaming and Suspense support
+- Parallel and intercepting routes
+- Route groups for organization
+- Better TypeScript support
+
+### App Router vs Pages Router
+
+While the Pages Router (\`pages/\` directory) is still fully supported, the App Router offers significant improvements:
+
+\`\`\`
+Pages Router (Legacy)          →    App Router (Modern)
+────────────────────────────────────────────────────────
+pages/index.js                 →    app/page.tsx
+pages/about.js                 →    app/about/page.tsx
+pages/api/users.js             →    app/api/users/route.ts
+pages/_app.js                  →    app/layout.tsx
+pages/_document.js             →    app/layout.tsx
+getServerSideProps             →    async components
+getStaticProps                 →    fetch with cache
+\`\`\`
+
+## 2. File-Based Routing Fundamentals
+
+Next.js uses a file-system based router where **folders define routes** and **special files define UI**.
+
+### File Conventions
+
+Next.js has specific files that serve special purposes:
+
+\`\`\`
+app/
+├── layout.tsx        # Root layout (required)
+├── page.tsx          # Home page route
+├── loading.tsx       # Loading UI
+├── error.tsx         # Error UI
+├── not-found.tsx     # 404 page
+├── template.tsx      # Re-rendered layout
+└── route.ts          # API endpoint
+\`\`\`
+
+### Key Concepts
+
+**Folders = Routes**
+- Each folder represents a route segment
+- Folder hierarchy maps to URL structure
+- Use special file names to create UI
+
+**Only page.tsx Creates Routes**
+- Folders alone don't create accessible routes
+- You need \`page.tsx\` to make a route publicly accessible
+- This allows colocation of components and utilities
+
+## 3. Creating Pages
+
+Pages are the most fundamental routing component in Next.js.
+
+### Basic Page Structure
+
+\`\`\`tsx
+// app/page.tsx - Home page (/)
+export default function HomePage() {
+  return (
+    <main>
+      <h1>Welcome to My Next.js App</h1>
+      <p>This is the home page rendered at "/"</p>
+    </main>
+  );
+}
+\`\`\`
+
+### Creating Multiple Pages
+
+\`\`\`
+app/
+├── page.tsx              # /
+├── about/
+│   └── page.tsx          # /about
+├── blog/
+│   └── page.tsx          # /blog
+└── contact/
+    └── page.tsx          # /contact
+\`\`\`
+
+### Server Components by Default
+
+Pages in the App Router are React Server Components by default:
+
+\`\`\`tsx
+// app/blog/page.tsx - Server Component
+async function getBlogPosts() {
+  const res = await fetch('https://api.example.com/posts', {
+    cache: 'force-cache' // SSG-like behavior
+  });
+  return res.json();
+}
+
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
+  
+  return (
+    <div>
+      <h1>Blog Posts</h1>
+      {posts.map(post => (
+        <article key={post.id}>
+          <h2>{post.title}</h2>
+          <p>{post.excerpt}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+\`\`\`
+
+### Client Components
+
+When you need interactivity, use the \`'use client'\` directive:
+
+\`\`\`tsx
+// app/counter/page.tsx - Client Component
+'use client';
+
+import { useState } from 'react';
+
+export default function CounterPage() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <h1>Counter: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+\`\`\`
+
+## 4. Dynamic Routes
+
+Dynamic routes allow you to create pages with variable URL segments.
+
+### Single Dynamic Segment
+
+Use square brackets \`[param]\` to create a dynamic route:
+
+\`\`\`
+app/
+└── blog/
+    └── [slug]/
+        └── page.tsx      # /blog/:slug
+\`\`\`
+
+\`\`\`tsx
+// app/blog/[slug]/page.tsx
+interface PageProps {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function BlogPost({ params }: PageProps) {
+  return (
+    <article>
+      <h1>Blog Post: {params.slug}</h1>
+      <p>This page handles /blog/{params.slug}</p>
+    </article>
+  );
+}
+
+// Generate static paths at build time
+export async function generateStaticParams() {
+  const posts = await fetch('https://api.example.com/posts').then(res => res.json());
+  
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+\`\`\`
+
+### Multiple Dynamic Segments
+
+\`\`\`
+app/
+└── shop/
+    └── [category]/
+        └── [product]/
+            └── page.tsx  # /shop/:category/:product
+\`\`\`
+
+\`\`\`tsx
+// app/shop/[category]/[product]/page.tsx
+interface PageProps {
+  params: { category: string; product: string };
+}
+
+export default function ProductPage({ params }: PageProps) {
+  return (
+    <div>
+      <h1>Category: {params.category}</h1>
+      <h2>Product: {params.product}</h2>
+    </div>
+  );
+}
+\`\`\`
+
+### Catch-All Routes
+
+Use \`[...param]\` to catch all subsequent segments:
+
+\`\`\`
+app/
+└── docs/
+    └── [...slug]/
+        └── page.tsx      # /docs/a, /docs/a/b, /docs/a/b/c
+\`\`\`
+
+\`\`\`tsx
+// app/docs/[...slug]/page.tsx
+interface PageProps {
+  params: { slug: string[] };
+}
+
+export default function DocsPage({ params }: PageProps) {
+  return (
+    <div>
+      <h1>Documentation</h1>
+      <p>Path segments: {params.slug.join(' / ')}</p>
+    </div>
+  );
+}
+\`\`\`
+
+### Optional Catch-All Routes
+
+Use \`[[...param]]\` to make the catch-all optional:
+
+\`\`\`
+app/
+└── shop/
+    └── [[...categories]]/
+        └── page.tsx      # /shop, /shop/clothing, /shop/clothing/shirts
+\`\`\`
+
+## 5. Route Groups and Organization
+
+Route groups allow you to organize routes without affecting the URL structure.
+
+### Creating Route Groups
+
+Use parentheses \`(folder)\` to create a route group:
+
+\`\`\`
+app/
+├── (marketing)/
+│   ├── layout.tsx        # Layout for marketing pages
+│   ├── about/
+│   │   └── page.tsx      # /about (not /(marketing)/about)
+│   └── contact/
+│       └── page.tsx      # /contact
+└── (shop)/
+    ├── layout.tsx        # Layout for shop pages
+    ├── products/
+    │   └── page.tsx      # /products
+    └── cart/
+        └── page.tsx      # /cart
+\`\`\`
+
+### Benefits of Route Groups
+
+**1. Organize Without Affecting URLs**
+\`\`\`tsx
+// app/(marketing)/about/page.tsx
+// URL: /about (not /(marketing)/about)
+\`\`\`
+
+**2. Multiple Layouts**
+\`\`\`tsx
+// app/(marketing)/layout.tsx
+export default function MarketingLayout({ children }) {
+  return (
+    <div className="marketing-layout">
+      <nav>{/* Marketing navigation */}</nav>
+      {children}
+    </div>
+  );
+}
+
+// app/(shop)/layout.tsx
+export default function ShopLayout({ children }) {
+  return (
+    <div className="shop-layout">
+      <nav>{/* Shop navigation */}</nav>
+      {children}
+    </div>
+  );
+}
+\`\`\`
+
+**3. Multiple Root Layouts**
+
+You can even have multiple root layouts:
+
+\`\`\`
+app/
+├── (main)/
+│   ├── layout.tsx        # Root layout for main app
+│   └── page.tsx
+└── (admin)/
+    ├── layout.tsx        # Different root layout for admin
+    └── page.tsx
+\`\`\`
+
+## 6. Navigation Methods
+
+Next.js provides multiple ways to navigate between routes.
+
+### Link Component (Client-Side Navigation)
+
+The \`Link\` component is the primary way to navigate:
+
+\`\`\`tsx
+import Link from 'next/link';
+
+export default function Navigation() {
+  return (
+    <nav>
+      {/* Basic link */}
+      <Link href="/about">About</Link>
+      
+      {/* Dynamic route */}
+      <Link href="/blog/my-post">Read Post</Link>
+      
+      {/* With dynamic data */}
+      <Link href={\`/user/\${userId}\`}>User Profile</Link>
+      
+      {/* With query parameters */}
+      <Link href={{
+        pathname: '/search',
+        query: { q: 'nextjs', filter: 'latest' }
+      }}>
+        Search
+      </Link>
+      
+      {/* Prefetching disabled */}
+      <Link href="/heavy-page" prefetch={false}>
+        Heavy Page
+      </Link>
+      
+      {/* Replace history */}
+      <Link href="/login" replace>
+        Login
+      </Link>
+      
+      {/* Scroll to top disabled */}
+      <Link href="/blog" scroll={false}>
+        Blog (No Scroll)
+      </Link>
+    </nav>
+  );
+}
+\`\`\`
+
+### Link Features
+
+**Automatic Prefetching**
+- Links in viewport are prefetched automatically
+- Improves perceived performance
+- Can be disabled with \`prefetch={false}\`
+
+**Active Link Styling**
+
+\`\`\`tsx
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+export default function NavLink({ href, children }) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+  
+  return (
+    <Link 
+      href={href}
+      className={isActive ? 'active' : ''}
+    >
+      {children}
+    </Link>
+  );
+}
+\`\`\`
+
+### useRouter Hook (Programmatic Navigation)
+
+For programmatic navigation, use the \`useRouter\` hook:
+
+\`\`\`tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function LoginForm() {
+  const router = useRouter();
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Perform login
+    const success = await login();
+    
+    if (success) {
+      // Navigate to dashboard
+      router.push('/dashboard');
+      
+      // Or replace current history entry
+      // router.replace('/dashboard');
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* form fields */}
+      <button type="submit">Login</button>
+      <button type="button" onClick={() => router.back()}>
+        Go Back
+      </button>
+    </form>
+  );
+}
+\`\`\`
+
+### Router Methods
+
+\`\`\`tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function NavigationExample() {
+  const router = useRouter();
+  
+  return (
+    <div>
+      {/* Navigate forward */}
+      <button onClick={() => router.push('/dashboard')}>
+        Go to Dashboard
+      </button>
+      
+      {/* Replace current route */}
+      <button onClick={() => router.replace('/new-page')}>
+        Replace Route
+      </button>
+      
+      {/* Go back */}
+      <button onClick={() => router.back()}>
+        Back
+      </button>
+      
+      {/* Go forward */}
+      <button onClick={() => router.forward()}>
+        Forward
+      </button>
+      
+      {/* Refresh current route */}
+      <button onClick={() => router.refresh()}>
+        Refresh Data
+      </button>
+      
+      {/* Prefetch a route */}
+      <button onClick={() => router.prefetch('/dashboard')}>
+        Prefetch Dashboard
+      </button>
+    </div>
+  );
+}
+\`\`\`
+
+### redirect() Function (Server-Side)
+
+For server-side redirects:
+
+\`\`\`tsx
+// app/profile/page.tsx
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/auth';
+
+export default async function ProfilePage() {
+  const session = await getSession();
+  
+  if (!session) {
+    // Server-side redirect
+    redirect('/login');
+  }
+  
+  return <div>Welcome {session.user.name}</div>;
+}
+\`\`\`
+
+### permanentRedirect() Function
+
+For permanent redirects (308 status):
+
+\`\`\`tsx
+import { permanentRedirect } from 'next/navigation';
+
+export default async function OldPage() {
+  permanentRedirect('/new-page');
+}
+\`\`\`
+
+### Middleware Redirects
+
+For global redirect logic:
+
+\`\`\`tsx
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // Check authentication
+  const token = request.cookies.get('token');
+  
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: '/dashboard/:path*',
+};
+\`\`\`
+
+## 7. Layouts and Nested Routes
+
+Layouts provide shared UI that persists across multiple pages.
+
+### Root Layout (Required)
+
+Every app needs a root layout:
+
+\`\`\`tsx
+// app/layout.tsx
+import { Inter } from 'next/font/google';
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata = {
+  title: 'My Next.js App',
+  description: 'Built with App Router',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <header>
+          <nav>{/* Global navigation */}</nav>
+        </header>
+        <main>{children}</main>
+        <footer>{/* Global footer */}</footer>
+      </body>
+    </html>
+  );
+}
+\`\`\`
+
+### Nested Layouts
+
+Layouts can be nested for section-specific UI:
+
+\`\`\`
+app/
+├── layout.tsx            # Root layout
+├── page.tsx              # Home page
+└── dashboard/
+    ├── layout.tsx        # Dashboard layout
+    ├── page.tsx          # /dashboard
+    ├── settings/
+    │   └── page.tsx      # /dashboard/settings
+    └── analytics/
+        └── page.tsx      # /dashboard/analytics
+\`\`\`
+
+\`\`\`tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="dashboard-layout">
+      <aside>
+        {/* Dashboard sidebar */}
+        <nav>
+          <Link href="/dashboard">Overview</Link>
+          <Link href="/dashboard/settings">Settings</Link>
+          <Link href="/dashboard/analytics">Analytics</Link>
+        </nav>
+      </aside>
+      <div className="dashboard-content">
+        {children}
+      </div>
+    </div>
+  );
+}
+\`\`\`
+
+### Layout Composition
+
+Layouts compose from root to leaf:
+
+\`\`\`
+URL: /dashboard/settings
+
+Rendered as:
+<RootLayout>
+  <DashboardLayout>
+    <SettingsPage />
+  </DashboardLayout>
+</RootLayout>
+\`\`\`
+
+### Templates
+
+Unlike layouts, templates create a new instance on navigation:
+
+\`\`\`tsx
+// app/dashboard/template.tsx
+'use client';
+
+import { motion } from 'framer-motion';
+
+export default function DashboardTemplate({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+\`\`\`
+
+**Layout vs Template:**
+- **Layout**: Stateful, persists across navigation, doesn't re-render
+- **Template**: Stateless, re-renders on navigation, useful for animations
+
+## 8. Loading and Error States
+
+Next.js provides built-in support for loading and error UI.
+
+### Loading States
+
+Create a \`loading.tsx\` file for automatic loading UI:
+
+\`\`\`tsx
+// app/dashboard/loading.tsx
+export default function DashboardLoading() {
+  return (
+    <div className="loading-skeleton">
+      <div className="skeleton-header" />
+      <div className="skeleton-content" />
+      <div className="skeleton-sidebar" />
+    </div>
+  );
+}
+\`\`\`
+
+This automatically wraps your page in Suspense:
+
+\`\`\`tsx
+// Automatic behavior
+<Suspense fallback={<DashboardLoading />}>
+  <DashboardPage />
+</Suspense>
+\`\`\`
+
+### Manual Suspense Boundaries
+
+For granular control:
+
+\`\`\`tsx
+// app/dashboard/page.tsx
+import { Suspense } from 'react';
+
+async function Analytics() {
+  const data = await fetchAnalytics(); // Slow
+  return <div>{/* Analytics UI */}</div>;
+}
+
+async function RecentActivity() {
+  const activity = await fetchActivity(); // Fast
+  return <div>{/* Activity UI */}</div>;
+}
+
+export default function DashboardPage() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      
+      {/* Fast content loads first */}
+      <Suspense fallback={<ActivitySkeleton />}>
+        <RecentActivity />
+      </Suspense>
+      
+      {/* Slow content streams in when ready */}
+      <Suspense fallback={<AnalyticsSkeleton />}>
+        <Analytics />
+      </Suspense>
+    </div>
+  );
+}
+\`\`\`
+
+### Error Boundaries
+
+Create an \`error.tsx\` file for error handling:
+
+\`\`\`tsx
+// app/dashboard/error.tsx
+'use client';
+
+import { useEffect } from 'react';
+
+export default function DashboardError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    // Log error to monitoring service
+    console.error('Dashboard error:', error);
+  }, [error]);
+  
+  return (
+    <div className="error-container">
+      <h2>Something went wrong!</h2>
+      <p>{error.message}</p>
+      <button onClick={reset}>Try Again</button>
+    </div>
+  );
+}
+\`\`\`
+
+### Global Error Handling
+
+For root-level errors, use \`global-error.tsx\`:
+
+\`\`\`tsx
+// app/global-error.tsx
+'use client';
+
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <html>
+      <body>
+        <h1>Application Error</h1>
+        <p>{error.message}</p>
+        <button onClick={reset}>Retry</button>
+      </body>
+    </html>
+  );
+}
+\`\`\`
+
+### Not Found Pages
+
+Create custom 404 pages:
+
+\`\`\`tsx
+// app/not-found.tsx
+import Link from 'next/link';
+
+export default function NotFound() {
+  return (
+    <div className="not-found">
+      <h1>404 - Page Not Found</h1>
+      <p>The page you're looking for doesn't exist.</p>
+      <Link href="/">Go Home</Link>
+    </div>
+  );
+}
+\`\`\`
+
+Programmatically trigger 404:
+
+\`\`\`tsx
+// app/posts/[id]/page.tsx
+import { notFound } from 'next/navigation';
+
+export default async function PostPage({ params }) {
+  const post = await getPost(params.id);
+  
+  if (!post) {
+    notFound(); // Shows nearest not-found.tsx
+  }
+  
+  return <article>{/* render post */}</article>;
+}
+\`\`\`
+
+## 9. Parallel and Intercepting Routes
+
+Advanced routing patterns for complex UIs.
+
+### Parallel Routes
+
+Render multiple pages in the same layout simultaneously:
+
+\`\`\`
+app/
+└── dashboard/
+    ├── layout.tsx
+    ├── page.tsx
+    ├── @analytics/
+    │   └── page.tsx
+    └── @notifications/
+        └── page.tsx
+\`\`\`
+
+\`\`\`tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+  analytics,
+  notifications,
+}: {
+  children: React.ReactNode;
+  analytics: React.ReactNode;
+  notifications: React.ReactNode;
+}) {
+  return (
+    <div className="dashboard-grid">
+      <div className="main">{children}</div>
+      <div className="analytics">{analytics}</div>
+      <div className="notifications">{notifications}</div>
+    </div>
+  );
+}
+\`\`\`
+
+### Conditional Rendering
+
+\`\`\`tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+  analytics,
+  notifications,
+}: {
+  children: React.ReactNode;
+  analytics: React.ReactNode;
+  notifications: React.ReactNode;
+}) {
+  const isAdmin = checkUserRole();
+  
+  return (
+    <div>
+      {children}
+      {isAdmin && analytics}
+      {notifications}
+    </div>
+  );
+}
+\`\`\`
+
+### Intercepting Routes
+
+Intercept routes to show them in a modal while preserving URL:
+
+\`\`\`
+app/
+├── photos/
+│   ├── page.tsx
+│   └── [id]/
+│       └── page.tsx
+└── @modal/
+    └── (.)photos/
+        └── [id]/
+            └── page.tsx
+\`\`\`
+
+\`\`\`tsx
+// app/layout.tsx
+export default function RootLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body>
+        {children}
+        {modal}
+      </body>
+    </html>
+  );
+}
+\`\`\`
+
+**Intercept Conventions:**
+- \`(.)\` - match same level
+- \`(..)\` - match one level up
+- \`(..)(..)\` - match two levels up
+- \`(...)\` - match from root
+
+## 10. Route Handlers (API Routes)
+
+Create API endpoints with \`route.ts\` files.
+
+### Basic Route Handler
+
+\`\`\`tsx
+// app/api/hello/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  return NextResponse.json({ message: 'Hello World' });
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  
+  return NextResponse.json({
+    received: body,
+    timestamp: new Date().toISOString(),
+  });
+}
+\`\`\`
+
+### Dynamic Route Handlers
+
+\`\`\`tsx
+// app/api/posts/[id]/route.ts
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const post = await getPost(params.id);
+  
+  if (!post) {
+    return NextResponse.json(
+      { error: 'Post not found' },
+      { status: 404 }
+    );
+  }
+  
+  return NextResponse.json(post);
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const body = await request.json();
+  const updated = await updatePost(params.id, body);
+  
+  return NextResponse.json(updated);
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  await deletePost(params.id);
+  
+  return NextResponse.json({ success: true });
+}
+\`\`\`
+
+### Request and Response
+
+\`\`\`tsx
+// app/api/search/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  // Get query parameters
+  const searchParams = request.nextUrl.searchParams;
+  const query = searchParams.get('q');
+  const page = searchParams.get('page') || '1';
+  
+  // Get headers
+  const userAgent = request.headers.get('user-agent');
+  
+  // Get cookies
+  const token = request.cookies.get('token');
+  
+  const results = await search(query, parseInt(page));
+  
+  // Return response with custom headers
+  return NextResponse.json(results, {
+    status: 200,
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      'X-Custom-Header': 'value',
+    },
+  });
+}
+\`\`\`
+
+### Middleware in Route Handlers
+
+\`\`\`tsx
+// app/api/protected/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+async function authenticate(request: NextRequest) {
+  const token = request.headers.get('authorization');
+  if (!token) {
+    throw new Error('Unauthorized');
+  }
+  return verifyToken(token);
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await authenticate(request);
+    
+    const data = await getProtectedData(user.id);
+    
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 401 }
+    );
+  }
+}
+\`\`\`
+
+## 11. Best Practices and Tips
+
+### Performance Optimization
+
+**1. Use Server Components by Default**
+\`\`\`tsx
+// ✅ Server Component (default)
+async function BlogPosts() {
+  const posts = await getPosts();
+  return <PostList posts={posts} />;
+}
+
+// ✅ Client Component only when needed
+'use client';
+function InteractiveWidget() {
+  const [state, setState] = useState();
+  return <div>...</div>;
+}
+\`\`\`
+
+**2. Optimize Link Prefetching**
+\`\`\`tsx
+// ✅ Let Next.js prefetch in viewport
+<Link href="/blog">Blog</Link>
+
+// ✅ Disable for heavy pages
+<Link href="/heavy-page" prefetch={false}>Heavy Page</Link>
+\`\`\`
+
+**3. Use Loading States**
+\`\`\`tsx
+// ✅ Provide loading.tsx for better UX
+// app/dashboard/loading.tsx
+export default function Loading() {
+  return <Skeleton />;
+}
+\`\`\`
+
+### Code Organization
+
+**1. Colocation**
+\`\`\`
+app/
+└── dashboard/
+    ├── page.tsx
+    ├── loading.tsx
+    ├── error.tsx
+    ├── components/
+    │   ├── chart.tsx
+    │   └── stats.tsx
+    └── utils/
+        └── calculations.ts
+\`\`\`
+
+**2. Route Groups for Organization**
+\`\`\`
+app/
+├── (auth)/
+│   ├── login/
+│   └── register/
+└── (app)/
+    ├── dashboard/
+    └── settings/
+\`\`\`
+
+**3. Shared Layouts**
+\`\`\`tsx
+// app/(app)/layout.tsx - Shared auth layout
+export default function AppLayout({ children }) {
+  return (
+    <AuthProvider>
+      <Sidebar />
+      <main>{children}</main>
+    </AuthProvider>
+  );
+}
+\`\`\`
+
+### SEO and Metadata
+
+**1. Static Metadata**
+\`\`\`tsx
+// app/blog/[slug]/page.tsx
+export const metadata = {
+  title: 'Blog Post',
+  description: 'Read our latest blog post',
+};
+\`\`\`
+
+**2. Dynamic Metadata**
+\`\`\`tsx
+// app/blog/[slug]/page.tsx
+export async function generateMetadata({ params }) {
+  const post = await getPost(params.slug);
+  
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+    },
+  };
+}
+\`\`\`
+
+### Error Handling
+
+**1. Granular Error Boundaries**
+\`\`\`
+app/
+├── error.tsx              # Root errors
+└── dashboard/
+    ├── error.tsx          # Dashboard errors
+    └── settings/
+        └── error.tsx      # Settings errors
+\`\`\`
+
+**2. Graceful Degradation**
+\`\`\`tsx
+export default async function Page() {
+  try {
+    const data = await fetchData();
+    return <Content data={data} />;
+  } catch (error) {
+    return <FallbackUI />;
+  }
+}
+\`\`\`
+
+### TypeScript Best Practices
+
+**1. Type Route Parameters**
+\`\`\`tsx
+interface PageProps {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function Page({ params, searchParams }: PageProps) {
+  // Fully typed params and search params
+}
+\`\`\`
+
+**2. Type Route Handlers**
+\`\`\`tsx
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  // Fully typed
+}
+\`\`\`
+
+### Common Patterns
+
+**1. Protected Routes**
+\`\`\`tsx
+// app/dashboard/layout.tsx
+import { redirect } from 'next/navigation';
+import { getSession } from '@/lib/auth';
+
+export default async function DashboardLayout({ children }) {
+  const session = await getSession();
+  
+  if (!session) {
+    redirect('/login');
+  }
+  
+  return <div>{children}</div>;
+}
+\`\`\`
+
+**2. Breadcrumbs Navigation**
+\`\`\`tsx
+'use client';
+
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+
+export default function Breadcrumbs() {
+  const pathname = usePathname();
+  const segments = pathname.split('/').filter(Boolean);
+  
+  return (
+    <nav>
+      <Link href="/">Home</Link>
+      {segments.map((segment, index) => {
+        const href = '/' + segments.slice(0, index + 1).join('/');
+        return (
+          <span key={href}>
+            {' / '}
+            <Link href={href}>{segment}</Link>
+          </span>
+        );
+      })}
+    </nav>
+  );
+}
+\`\`\`
+
+**3. Tab Navigation with URL State**
+\`\`\`tsx
+'use client';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+
+export default function TabNavigation() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'overview';
+  
+  const switchTab = (tab: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', tab);
+    router.push('?' + params.toString());
+  };
+  
+  return (
+    <div>
+      <button onClick={() => switchTab('overview')}>Overview</button>
+      <button onClick={() => switchTab('analytics')}>Analytics</button>
+      <button onClick={() => switchTab('settings')}>Settings</button>
+      
+      {activeTab === 'overview' && <Overview />}
+      {activeTab === 'analytics' && <Analytics />}
+      {activeTab === 'settings' && <Settings />}
+    </div>
+  );
+}
+\`\`\`
+
+## Conclusion
+
+The Next.js App Router represents the future of React development, combining powerful routing capabilities with excellent developer experience. By mastering these routing fundamentals:
+
+- **File-based routing** makes project structure intuitive and scalable
+- **Server Components** by default improves performance significantly
+- **Nested layouts** enable complex UI patterns with shared state
+- **Built-in loading and error states** provide better UX with minimal code
+- **Advanced patterns** like parallel and intercepting routes solve complex scenarios
+
+### Key Takeaways
+
+1. **Start with Server Components** - Only use \`'use client'\` when necessary
+2. **Leverage layouts** - Use nested layouts for shared UI and state
+3. **Provide feedback** - Always include loading.tsx and error.tsx
+4. **Organize with route groups** - Keep your structure clean without affecting URLs
+5. **Use TypeScript** - Type safety prevents routing errors
+6. **Optimize navigation** - Use Link for client-side navigation, let Next.js handle prefetching
+
+### What's Next?
+
+Now that you understand routing basics, explore:
+- **Data Fetching** - Learn about Server Actions and data mutations
+- **Caching Strategies** - Master Next.js caching behavior
+- **Middleware** - Implement authentication and request handling
+- **Internationalization** - Build multi-language applications
+- **Deployment** - Deploy your App Router app to production
+
+The App Router is continually evolving, with the Next.js team adding new features regularly. Stay updated with the [official documentation](https://nextjs.org/docs) and experiment with these patterns in your projects.
+
+Happy routing! 🚀
+    `,
+    author: "Merajul Haque",
+    date: "2026-02-17",
+    // image: "",
+    tags: ["Next.js", "React", "App Router", "Routing", "Navigation", "Web Development"],
+    readTime: 18,
+  },
+  {
     id: "6",
     title: "Next.js Project Structure Explained (app folder, public, components)",
     slug: "nextjs-project-structure-explained-app-folder-public-components",
@@ -2883,4 +4254,5 @@ By applying these optimization techniques, you'll significantly improve your Rea
     tags: ["React", "Performance", "Web Development", "Optimization"],
     readTime: 9,
   },
+
 ];
