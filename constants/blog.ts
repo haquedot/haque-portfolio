@@ -19,6 +19,1413 @@ export interface BlogPost {
 }
 
 export const blogPosts: BlogPost[] = [
+
+  {
+    id: "9",
+    title: "Link & Navigation in Next.js (next/link, useRouter)",
+    slug: "link-navigation-in-nextjs-next-link-userouter",
+    excerpt:
+      "Master navigation in Next.js with this comprehensive guide. Learn how to use the Link component, useRouter hook, programmatic navigation, and advanced patterns for building fast, SEO-friendly applications with optimal user experience.",
+    content: `
+# Link & Navigation in Next.js (next/link, useRouter)
+
+Navigation is the backbone of any web application, and Next.js provides powerful tools to create fast, seamless navigation experiences. In this comprehensive guide, we'll explore everything from basic link components to advanced navigation patterns used in modern production applications.
+
+## Table of Contents
+
+1. Introduction to Navigation in Next.js
+2. The Link Component Deep Dive
+3. Client-Side Navigation Mechanics
+4. useRouter Hook and Navigation Hooks
+5. Programmatic Navigation Patterns
+6. Advanced Link Features
+7. Navigation Events and Loading States
+8. Route Groups and Parallel Routes
+9. Intercepting Routes
+10. Navigation Performance Optimization
+11. SEO and Accessibility Considerations
+12. Real-World Examples
+13. Best Practices and Common Pitfalls
+
+## 1. Introduction to Navigation in Next.js
+
+Next.js revolutionizes web navigation by combining the best of both worlds: the instant feel of single-page applications (SPAs) and the SEO benefits of server-side rendering (SSR).
+
+### Why Next.js Navigation is Different
+
+\`\`\`typescript
+// Traditional HTML navigation (full page reload)
+<a href="/about">About</a>
+
+// Next.js Link component (client-side navigation)
+import Link from 'next/link';
+<Link href="/about">About</Link>
+\`\`\`
+
+**Key Benefits:**
+
+- **Client-side navigation** - No full page reloads
+- **Prefetching** - Routes are loaded before clicking
+- **Instant navigation** - Near-instant page transitions
+- **State preservation** - React state persists during navigation
+- **Optimistic UI updates** - Immediate feedback to users
+
+## 2. The Link Component Deep Dive
+
+The \`<Link>\` component is the primary way to navigate between routes in Next.js.
+
+### Basic Usage
+
+\`\`\`tsx
+import Link from 'next/link';
+
+export default function Navigation() {
+  return (
+    <nav>
+      <Link href="/">Home</Link>
+      <Link href="/about">About</Link>
+      <Link href="/blog">Blog</Link>
+      <Link href="/contact">Contact</Link>
+    </nav>
+  );
+}
+\`\`\`
+
+### Dynamic Routes
+
+\`\`\`tsx
+// Linking to dynamic routes
+<Link href="/blog/my-first-post">
+  Read Post
+</Link>
+
+// Using template literals
+<Link href={\`/blog/\${post.slug}\`}>
+  {post.title}
+</Link>
+
+// Using URL objects for complex routes
+<Link 
+  href={{
+    pathname: '/blog/[slug]',
+    query: { slug: 'my-post', ref: 'homepage' }
+  }}
+>
+  Read More
+</Link>
+\`\`\`
+
+### Link Props and Configuration
+
+\`\`\`tsx
+import Link from 'next/link';
+
+export default function AdvancedLinks() {
+  return (
+    <>
+      {/* Prefetch disabled for conditional navigation */}
+      <Link href="/dashboard" prefetch={false}>
+        Dashboard (No Prefetch)
+      </Link>
+
+      {/* Replace current history entry */}
+      <Link href="/login" replace>
+        Login (Replace)
+      </Link>
+
+      {/* Scroll to top disabled */}
+      <Link href="/docs#section" scroll={false}>
+        Go to Section
+      </Link>
+
+      {/* Shallow routing (query params only) */}
+      <Link href="/?page=2" shallow>
+        Next Page
+      </Link>
+
+      {/* Custom locale for i18n */}
+      <Link href="/about" locale="fr">
+        À propos
+      </Link>
+    </>
+  );
+}
+\`\`\`
+
+### Styling Links
+
+\`\`\`tsx
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+export default function NavBar() {
+  const pathname = usePathname();
+
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
+    { href: '/blog', label: 'Blog' },
+  ];
+
+  return (
+    <nav className="flex gap-4">
+      {links.map((link) => {
+        const isActive = pathname === link.href;
+        
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={
+              isActive 
+                ? 'text-blue-600 font-bold' 
+                : 'text-gray-600 hover:text-gray-900'
+            }
+          >
+            {link.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+\`\`\`
+
+## 3. Client-Side Navigation Mechanics
+
+Understanding how Next.js navigation works under the hood helps you build better applications.
+
+### Prefetching Behavior
+
+\`\`\`tsx
+'use client';
+
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+
+export default function PrefetchDemo() {
+  const [isPrefetchEnabled, setIsPrefetchEnabled] = useState(true);
+
+  return (
+    <div>
+      <h2>Prefetch Control</h2>
+      
+      {/* Prefetch enabled (default) */}
+      <Link href="/heavy-page" prefetch={isPrefetchEnabled}>
+        Heavy Page (Prefetch: {isPrefetchEnabled ? 'On' : 'Off'})
+      </Link>
+
+      <button onClick={() => setIsPrefetchEnabled(!isPrefetchEnabled)}>
+        Toggle Prefetch
+      </button>
+
+      {/* Conditional prefetching */}
+      <Link 
+        href="/premium-content"
+        prefetch={userIsPremium ? true : false}
+      >
+        Premium Content
+      </Link>
+    </div>
+  );
+}
+\`\`\`
+
+**Prefetching Rules (Next.js 14+):**
+
+1. **Production mode only** - Prefetching is disabled in development
+2. **Viewport detection** - Links are prefetched when they enter viewport
+3. **Static routes** - Full route prefetched
+4. **Dynamic routes** - Only shared layout prefetched up to loading.js
+5. **Cache duration** - Prefetched data cached for 30 seconds
+
+### Router Cache
+
+\`\`\`typescript
+// Next.js automatically caches navigated routes
+// Cache categories:
+// 1. Static routes - Cached indefinitely
+// 2. Dynamic routes - Cached for 30 seconds
+
+// Force revalidation
+router.refresh();
+\`\`\`
+
+## 4. useRouter Hook and Navigation Hooks
+
+The App Router provides several hooks for navigation and route information.
+
+### useRouter Hook
+
+\`\`\`tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function ProfilePage() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    router.push('/login');
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  const handleForward = () => {
+    router.forward();
+  };
+
+  const handleRefresh = () => {
+    // Refresh current route and fetch new data
+    router.refresh();
+  };
+
+  return (
+    <div>
+      <button onClick={handleBack}>← Back</button>
+      <button onClick={handleForward}>Forward →</button>
+      <button onClick={handleRefresh}>🔄 Refresh</button>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+}
+\`\`\`
+
+### usePathname Hook
+
+\`\`\`tsx
+'use client';
+
+import { usePathname } from 'next/navigation';
+
+export default function Breadcrumbs() {
+  const pathname = usePathname();
+  
+  // pathname: '/blog/my-first-post'
+  const segments = pathname.split('/').filter(Boolean);
+  
+  return (
+    <nav aria-label="Breadcrumb">
+      <ol className="flex gap-2">
+        <li>
+          <Link href="/">Home</Link>
+        </li>
+        {segments.map((segment, index) => {
+          const href = \`/\${segments.slice(0, index + 1).join('/')}\`;
+          const isLast = index === segments.length - 1;
+          
+          return (
+            <li key={href}>
+              / {isLast ? (
+                <span>{segment}</span>
+              ) : (
+                <Link href={href}>{segment}</Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+\`\`\`
+
+### useSearchParams Hook
+
+\`\`\`tsx
+'use client';
+
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+
+export default function ProductFilter() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentCategory = searchParams.get('category') || 'all';
+  const currentSort = searchParams.get('sort') || 'newest';
+
+  const updateSearchParams = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(key, value);
+    router.push(\`\${pathname}?\${params.toString()}\`);
+  };
+
+  return (
+    <div>
+      <select 
+        value={currentCategory}
+        onChange={(e) => updateSearchParams('category', e.target.value)}
+      >
+        <option value="all">All Categories</option>
+        <option value="electronics">Electronics</option>
+        <option value="clothing">Clothing</option>
+      </select>
+
+      <select 
+        value={currentSort}
+        onChange={(e) => updateSearchParams('sort', e.target.value)}
+      >
+        <option value="newest">Newest</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+      </select>
+    </div>
+  );
+}
+\`\`\`
+
+### useParams Hook (for Dynamic Routes)
+
+\`\`\`tsx
+'use client';
+
+import { useParams } from 'next/navigation';
+
+// In app/blog/[category]/[slug]/page.tsx
+export default function BlogPost() {
+  const params = useParams();
+  
+  // params.category: 'technology'
+  // params.slug: 'my-first-post'
+  
+  return (
+    <article>
+      <h1>Category: {params.category}</h1>
+      <h2>Post: {params.slug}</h2>
+    </article>
+  );
+}
+\`\`\`
+
+## 5. Programmatic Navigation Patterns
+
+### Redirect After Form Submission
+
+\`\`\`tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+export default function CreatePostForm() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      const post = await response.json();
+      
+      // Navigate to new post
+      router.push(\`/blog/\${post.slug}\`);
+      
+      // Or replace history entry
+      // router.replace(\`/blog/\${post.slug}\`);
+    } catch (error) {
+      console.error('Failed to create post:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="title" required />
+      <textarea name="content" required />
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Creating...' : 'Create Post'}
+      </button>
+    </form>
+  );
+}
+\`\`\`
+
+### Conditional Navigation
+
+\`\`\`tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function ProtectedPage({ user }: { user: User | null }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      router.push('/login?redirect=/dashboard');
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return <div>Redirecting...</div>;
+  }
+
+  return <Dashboard user={user} />;
+}
+\`\`\`
+
+### Navigation with Loading States
+
+\`\`\`tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
+
+export default function NavigationWithLoading() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [data, setData] = useState(null);
+
+  const handleNavigation = async (href: string) => {
+    startTransition(async () => {
+      // Fetch data before navigation
+      const response = await fetch(\`/api/data?page=\${href}\`);
+      const newData = await response.json();
+      setData(newData);
+      
+      // Navigate after data is ready
+      router.push(href);
+    });
+  };
+
+  return (
+    <div>
+      <button 
+        onClick={() => handleNavigation('/page-1')}
+        disabled={isPending}
+      >
+        {isPending ? 'Loading...' : 'Go to Page 1'}
+      </button>
+    </div>
+  );
+}
+\`\`\`
+
+## 6. Advanced Link Features
+
+### Link with Active State Detection
+
+\`\`\`tsx
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ReactNode } from 'react';
+
+interface NavLinkProps {
+  href: string;
+  children: ReactNode;
+  exact?: boolean;
+}
+
+export function NavLink({ href, children, exact = false }: NavLinkProps) {
+  const pathname = usePathname();
+  
+  const isActive = exact 
+    ? pathname === href
+    : pathname.startsWith(href);
+
+  return (
+    <Link
+      href={href}
+      className={
+        isActive 
+          ? 'text-blue-600 font-semibold border-b-2 border-blue-600' 
+          : 'text-gray-600 hover:text-gray-900'
+      }
+      aria-current={isActive ? 'page' : undefined}
+    >
+      {children}
+    </Link>
+  );
+}
+
+// Usage
+export default function Navigation() {
+  return (
+    <nav>
+      <NavLink href="/" exact>Home</NavLink>
+      <NavLink href="/blog">Blog</NavLink>
+      <NavLink href="/about">About</NavLink>
+    </nav>
+  );
+}
+\`\`\`
+
+### External Links
+
+\`\`\`tsx
+import Link from 'next/link';
+
+export default function ExternalLinks() {
+  return (
+    <div>
+      {/* External link - automatically detected */}
+      <Link 
+        href="https://github.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub
+      </Link>
+
+      {/* Download link */}
+      <Link 
+        href="/downloads/guide.pdf"
+        download
+      >
+        Download Guide
+      </Link>
+
+      {/* Email link */}
+      <Link href="mailto:contact@example.com">
+        Email Us
+      </Link>
+
+      {/* Telephone link */}
+      <Link href="tel:+1234567890">
+        Call Us
+      </Link>
+    </div>
+  );
+}
+\`\`\`
+
+### Link with Confirmation
+
+\`\`\`tsx
+'use client';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+export function DeleteButton({ itemId }: { itemId: string }) {
+  const router = useRouter();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (!confirm('Are you sure you want to delete this item?')) {
+      return;
+    }
+
+    try {
+      await fetch(\`/api/items/\${itemId}\`, { method: 'DELETE' });
+      router.push('/items');
+      router.refresh(); // Revalidate data
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
+
+  return (
+    <Link 
+      href="#" 
+      onClick={handleDelete}
+      className="text-red-600 hover:text-red-800"
+    >
+      Delete
+    </Link>
+  );
+}
+\`\`\`
+
+## 7. Navigation Events and Loading States
+
+### Creating a Loading Bar
+
+\`\`\`tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+
+export function NavigationProgress() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(false);
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    const handleStart = () => setLoading(true);
+    const handleComplete = () => setLoading(false);
+
+    // You can use a library like nprogress here
+    if (loading) {
+      // Start progress bar
+    }
+
+    return () => {
+      handleComplete();
+    };
+  }, [loading]);
+
+  if (!loading) return null;
+
+  return (
+    <div 
+      className="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-50 animate-pulse"
+      role="progressbar"
+      aria-label="Page loading"
+    />
+  );
+}
+\`\`\`
+
+### Optimistic UI Updates
+
+\`\`\`tsx
+'use client';
+
+import { useOptimistic } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export function TodoList({ todos }: { todos: Todo[] }) {
+  const router = useRouter();
+  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
+    todos,
+    (state, newTodo: Todo) => [...state, newTodo]
+  );
+
+  const addTodo = async (formData: FormData) => {
+    const text = formData.get('text') as string;
+    const newTodo = {
+      id: Date.now().toString(),
+      text,
+      completed: false,
+    };
+
+    // Optimistically update UI
+    addOptimisticTodo(newTodo);
+
+    // Send to server
+    await fetch('/api/todos', {
+      method: 'POST',
+      body: JSON.stringify(newTodo),
+    });
+
+    // Refresh data
+    router.refresh();
+  };
+
+  return (
+    <div>
+      <ul>
+        {optimisticTodos.map((todo) => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+      
+      <form action={addTodo}>
+        <input name="text" required />
+        <button type="submit">Add Todo</button>
+      </form>
+    </div>
+  );
+}
+\`\`\`
+
+## 8. Route Groups and Parallel Routes
+
+### Route Groups (Organization without affecting URL)
+
+\`\`\`
+app/
+├── (marketing)/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── about/
+│   └── contact/
+├── (shop)/
+│   ├── layout.tsx
+│   ├── products/
+│   └── cart/
+└── (dashboard)/
+    ├── layout.tsx
+    └── analytics/
+\`\`\`
+
+\`\`\`tsx
+// app/(marketing)/layout.tsx
+export default function MarketingLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <header>Marketing Header</header>
+      {children}
+      <footer>Marketing Footer</footer>
+    </div>
+  );
+}
+
+// app/(dashboard)/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <nav>Dashboard Sidebar</nav>
+      {children}
+    </div>
+  );
+}
+\`\`\`
+
+### Parallel Routes
+
+\`\`\`
+app/
+├── @team/
+│   └── page.tsx
+├── @analytics/
+│   └── page.tsx
+└── layout.tsx
+\`\`\`
+
+\`\`\`tsx
+// app/layout.tsx
+export default function Layout({
+  children,
+  team,
+  analytics,
+}: {
+  children: React.ReactNode;
+  team: React.ReactNode;
+  analytics: React.ReactNode;
+}) {
+  return (
+    <div>
+      {children}
+      <div className="grid grid-cols-2 gap-4">
+        <section>{team}</section>
+        <section>{analytics}</section>
+      </div>
+    </div>
+  );
+}
+\`\`\`
+
+## 9. Intercepting Routes
+
+Intercepting routes allow you to load a route within the current layout while keeping the context for background content.
+
+### Modal Navigation Pattern
+
+\`\`\`
+app/
+├── photo/
+│   └── [id]/
+│       └── page.tsx
+└── @modal/
+    └── (.)photo/
+        └── [id]/
+            └── page.tsx
+\`\`\`
+
+\`\`\`tsx
+// app/@modal/(.)photo/[id]/page.tsx
+'use client';
+
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
+export default function PhotoModal({ params }: { params: { id: string } }) {
+  const router = useRouter();
+
+  return (
+    <div 
+      className="fixed inset-0 bg-black/80 flex items-center justify-center"
+      onClick={() => router.back()}
+    >
+      <div 
+        className="relative max-w-4xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button 
+          onClick={() => router.back()}
+          className="absolute top-2 right-2 text-white"
+        >
+          ✕ Close
+        </button>
+        <Image 
+          src={\`/photos/\${params.id}.jpg\`}
+          alt="Photo"
+          width={800}
+          height={600}
+        />
+      </div>
+    </div>
+  );
+}
+\`\`\`
+
+## 10. Navigation Performance Optimization
+
+### Smart Prefetching Strategy
+
+\`\`\`tsx
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+export default function SmartPrefetch() {
+  const [shouldPrefetch, setShouldPrefetch] = useState(false);
+
+  useEffect(() => {
+    // Only prefetch on good connections
+    if ('connection' in navigator) {
+      const conn = (navigator as any).connection;
+      setShouldPrefetch(
+        conn.effectiveType === '4g' && !conn.saveData
+      );
+    }
+  }, []);
+
+  return (
+    <Link 
+      href="/heavy-page"
+      prefetch={shouldPrefetch}
+    >
+      Load Heavy Content
+    </Link>
+  );
+}
+\`\`\`
+
+### Route Segment Config
+
+\`\`\`tsx
+// app/dashboard/page.tsx
+
+// Disable caching for this route
+export const dynamic = 'force-dynamic';
+
+// Set revalidation time
+export const revalidate = 60; // Revalidate every 60 seconds
+
+// Runtime edge or nodejs
+export const runtime = 'edge';
+
+export default function Dashboard() {
+  return <div>Dashboard</div>;
+}
+\`\`\`
+
+### Partial Prerendering (Experimental)
+
+\`\`\`tsx
+// next.config.js
+module.exports = {
+  experimental: {
+    ppr: true, // Partial Prerendering
+  },
+};
+
+// app/page.tsx
+import { Suspense } from 'react';
+
+export default function Page() {
+  return (
+    <div>
+      {/* Static content - prerendered */}
+      <header>Welcome to our site</header>
+      
+      {/* Dynamic content - streamed */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <DynamicContent />
+      </Suspense>
+    </div>
+  );
+}
+\`\`\`
+
+## 11. SEO and Accessibility Considerations
+
+### Accessible Navigation
+
+\`\`\`tsx
+import Link from 'next/link';
+
+export default function AccessibleNav() {
+  return (
+    <nav aria-label="Main navigation">
+      <ul>
+        <li>
+          <Link href="/" aria-current="page">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link href="/about">
+            About
+          </Link>
+        </li>
+        <li>
+          <Link href="/contact">
+            Contact
+          </Link>
+        </li>
+      </ul>
+      
+      {/* Skip link for keyboard users */}
+      <Link 
+        href="#main-content"
+        className="sr-only focus:not-sr-only"
+      >
+        Skip to main content
+      </Link>
+    </nav>
+  );
+}
+\`\`\`
+
+### SEO-Friendly Navigation
+
+\`\`\`tsx
+// app/sitemap.ts
+import { MetadataRoute } from 'next';
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [
+    {
+      url: 'https://example.com',
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 1,
+    },
+    {
+      url: 'https://example.com/about',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: 'https://example.com/blog',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+  ];
+}
+\`\`\`
+
+## 12. Real-World Examples
+
+### E-commerce Product Navigation
+
+\`\`\`tsx
+'use client';
+
+import Link from 'next/link';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+}
+
+export default function ProductList({ products }: { products: Product[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const currentCategory = searchParams.get('category') || 'all';
+  const sortBy = searchParams.get('sort') || 'name';
+
+  const createQueryString = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(name, value);
+    return params.toString();
+  };
+
+  const filteredProducts = products
+    .filter(p => currentCategory === 'all' || p.category === currentCategory)
+    .sort((a, b) => {
+      if (sortBy === 'price') return a.price - b.price;
+      return a.name.localeCompare(b.name);
+    });
+
+  return (
+    <div>
+      {/* Category Filter */}
+      <div className="flex gap-2 mb-4">
+        {['all', 'electronics', 'clothing', 'books'].map((cat) => (
+          <Link
+            key={cat}
+            href={\`\${pathname}?\${createQueryString('category', cat)}\`}
+            className={
+              currentCategory === cat 
+                ? 'bg-blue-600 text-white px-4 py-2 rounded'
+                : 'bg-gray-200 px-4 py-2 rounded'
+            }
+          >
+            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+          </Link>
+        ))}
+      </div>
+
+      {/* Sort Options */}
+      <select
+        value={sortBy}
+        onChange={(e) => {
+          router.push(
+            \`\${pathname}?\${createQueryString('sort', e.target.value)}\`
+          );
+        }}
+        className="mb-4 px-4 py-2 border rounded"
+      >
+        <option value="name">Sort by Name</option>
+        <option value="price">Sort by Price</option>
+      </select>
+
+      {/* Product Grid */}
+      <div className="grid grid-cols-3 gap-4">
+        {filteredProducts.map((product) => (
+          <Link
+            key={product.id}
+            href={\`/products/\${product.id}\`}
+            className="border rounded p-4 hover:shadow-lg transition"
+          >
+            <h3>{product.name}</h3>
+            <p>\${product.price}</p>
+          </Link>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex gap-2 mt-4">
+        {currentPage > 1 && (
+          <Link
+            href={\`\${pathname}?\${createQueryString('page', String(currentPage - 1))}\`}
+            className="px-4 py-2 bg-gray-200 rounded"
+          >
+            ← Previous
+          </Link>
+        )}
+        <Link
+          href={\`\${pathname}?\${createQueryString('page', String(currentPage + 1))}\`}
+          className="px-4 py-2 bg-gray-200 rounded"
+        >
+          Next →
+        </Link>
+      </div>
+    </div>
+  );
+}
+\`\`\`
+
+### Multi-step Form with Navigation
+
+\`\`\`tsx
+'use client';
+
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+export default function MultiStepForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentStep = Number(searchParams.get('step')) || 1;
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    address: '',
+    payment: '',
+  });
+
+  const goToStep = (step: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('step', String(step));
+    router.push(\`?\${params.toString()}\`, { scroll: false });
+  };
+
+  const handleSubmit = async () => {
+    await fetch('/api/submit', {
+      method: 'POST',
+      body: JSON.stringify(formData),
+    });
+    router.push('/success');
+  };
+
+  return (
+    <div>
+      {/* Progress Indicator */}
+      <div className="flex gap-2 mb-8">
+        {[1, 2, 3, 4].map((step) => (
+          <div
+            key={step}
+            className={
+              step <= currentStep
+                ? 'w-1/4 h-2 bg-blue-600 rounded'
+                : 'w-1/4 h-2 bg-gray-200 rounded'
+            }
+          />
+        ))}
+      </div>
+
+      {/* Step Content */}
+      {currentStep === 1 && (
+        <div>
+          <h2>Step 1: Personal Info</h2>
+          <input
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            placeholder="Name"
+          />
+          <button onClick={() => goToStep(2)}>Next →</button>
+        </div>
+      )}
+
+      {currentStep === 2 && (
+        <div>
+          <h2>Step 2: Contact Info</h2>
+          <input
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            placeholder="Email"
+          />
+          <button onClick={() => goToStep(1)}>← Back</button>
+          <button onClick={() => goToStep(3)}>Next →</button>
+        </div>
+      )}
+
+      {currentStep === 3 && (
+        <div>
+          <h2>Step 3: Address</h2>
+          <input
+            value={formData.address}
+            onChange={(e) => setFormData({...formData, address: e.target.value})}
+            placeholder="Address"
+          />
+          <button onClick={() => goToStep(2)}>← Back</button>
+          <button onClick={() => goToStep(4)}>Next →</button>
+        </div>
+      )}
+
+      {currentStep === 4 && (
+        <div>
+          <h2>Step 4: Payment</h2>
+          <input
+            value={formData.payment}
+            onChange={(e) => setFormData({...formData, payment: e.target.value})}
+            placeholder="Payment Info"
+          />
+          <button onClick={() => goToStep(3)}>← Back</button>
+          <button onClick={handleSubmit}>Submit</button>
+        </div>
+      )}
+    </div>
+  );
+}
+\`\`\`
+
+## 13. Best Practices and Common Pitfalls
+
+### ✅ Best Practices
+
+1. **Always use Link for internal navigation**
+   \`\`\`tsx
+   // ✅ Good
+   <Link href="/about">About</Link>
+   
+   // ❌ Bad (causes full page reload)
+   <a href="/about">About</a>
+   \`\`\`
+
+2. **Prefetch strategically**
+   \`\`\`tsx
+   // ✅ Good - disable for rarely visited pages
+   <Link href="/admin" prefetch={false}>
+     Admin Panel
+   </Link>
+   \`\`\`
+
+3. **Handle loading states**
+   \`\`\`tsx
+   // ✅ Good
+   const [isPending, startTransition] = useTransition();
+   
+   const navigate = () => {
+     startTransition(() => {
+       router.push('/dashboard');
+     });
+   };
+   \`\`\`
+
+4. **Use proper error boundaries**
+   \`\`\`tsx
+   // app/error.tsx
+   'use client';
+   
+   export default function Error({
+     error,
+     reset,
+   }: {
+     error: Error;
+     reset: () => void;
+   }) {
+     return (
+       <div>
+         <h2>Something went wrong!</h2>
+         <button onClick={() => reset()}>Try again</button>
+       </div>
+     );
+   }
+   \`\`\`
+
+5. **Implement proper 404 pages**
+   \`\`\`tsx
+   // app/not-found.tsx
+   import Link from 'next/link';
+   
+   export default function NotFound() {
+     return (
+       <div>
+         <h2>Page Not Found</h2>
+         <Link href="/">Return Home</Link>
+       </div>
+     );
+   }
+   \`\`\`
+
+### ❌ Common Pitfalls to Avoid
+
+1. **Using anchor tags for internal navigation**
+   \`\`\`tsx
+   // ❌ Wrong - causes full page reload
+   <a href="/about">About</a>
+   
+   // ✅ Correct
+   <Link href="/about">About</Link>
+   \`\`\`
+
+2. **Not handling query parameters properly**
+   \`\`\`tsx
+   // ❌ Wrong - loses other query params
+   router.push('/products?category=electronics');
+   
+   // ✅ Correct - preserves other params
+   const params = new URLSearchParams(searchParams);
+   params.set('category', 'electronics');
+   router.push(\`/products?\${params.toString()}\`);
+   \`\`\`
+
+3. **Excessive prefetching**
+   \`\`\`tsx
+   // ❌ Wrong - prefetches everything
+   {heavyPages.map(page => (
+     <Link href={page.url}>{page.title}</Link>
+   ))}
+   
+   // ✅ Correct - selective prefetching
+   {heavyPages.map(page => (
+     <Link href={page.url} prefetch={page.priority === 'high'}>
+       {page.title}
+     </Link>
+   ))}
+   \`\`\`
+
+4. **Using useRouter in Server Components**
+   \`\`\`tsx
+   // ❌ Wrong - Server Component
+   import { useRouter } from 'next/navigation';
+   
+   export default function Page() {
+     const router = useRouter(); // Error!
+   }
+   
+   // ✅ Correct - Client Component
+   'use client';
+   import { useRouter } from 'next/navigation';
+   
+   export default function Page() {
+     const router = useRouter();
+   }
+   \`\`\`
+
+5. **Not handling back button properly**
+   \`\`\`tsx
+   // ❌ Wrong - replaces history unnecessarily
+   router.replace('/dashboard');
+   
+   // ✅ Correct - allows back navigation
+   router.push('/dashboard');
+   \`\`\`
+
+### Performance Checklist
+
+- [ ] Use \`<Link>\` for all internal navigation
+- [ ] Disable prefetch for rarely visited pages
+- [ ] Implement loading.tsx for route segments
+- [ ] Use Suspense boundaries strategically
+- [ ] Handle navigation errors gracefully
+- [ ] Optimize images in linked pages
+- [ ] Use route groups for better organization
+- [ ] Implement proper caching strategies
+- [ ] Test navigation on slow connections
+- [ ] Monitor Core Web Vitals
+
+## Conclusion
+
+Navigation in Next.js is powerful and flexible, offering developers the tools to create fast, SEO-friendly applications with excellent user experience. Key takeaways:
+
+- **Use Link component** for instant client-side navigation
+- **Leverage prefetching** to make navigation feel instant
+- **Use navigation hooks** (useRouter, usePathname, useSearchParams) for programmatic control
+- **Implement loading states** to keep users informed
+- **Optimize strategically** based on your application's needs
+- **Follow accessibility best practices** for inclusive navigation
+
+By mastering these navigation patterns, you'll build Next.js applications that are fast, maintainable, and provide exceptional user experiences.
+
+### Additional Resources
+
+- [Next.js Documentation - Routing](https://nextjs.org/docs/app/building-your-application/routing)
+- [Next.js Documentation - Linking and Navigating](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating)
+- [Web.dev - Navigation Performance](https://web.dev/navigation/)
+
+Happy navigating! 🚀
+    `,
+    author: "Merajul Haque",
+    date: "2026-02-19",
+    tags: ["Next.js", "React", "Navigation", "Web Development", "App Router", "Performance"],
+    readTime: 18,
+    featured: true,
+  },
   {
     id: "8",
     title: "Layouts in Next.js (Root Layout, Nested Layouts Explained)",
