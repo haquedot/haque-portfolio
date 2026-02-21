@@ -1,18 +1,51 @@
 'use client';
 
-import { blogPosts } from '@/constants/blog';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { useState, useCallback } from 'react';
+import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
 import { BlogSearch } from '@/components/blog-search';
 import { type SearchResult } from '@/lib/blog-search';
 import { motion } from 'framer-motion';
 
+interface BlogPostData {
+  _id?: string;
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  image?: string;
+  tags: string[];
+  readTime: number;
+  views?: number;
+  likes?: number;
+  featured?: boolean;
+}
+
 export default function BlogPage() {
+  const [blogPosts, setBlogPosts] = useState<BlogPostData[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+
+  useEffect(() => {
+    fetch('/api/blogs')
+      .then((res) => res.json())
+      .then((data) => {
+        // Map _id to id for compatibility with BlogPost type
+        const posts = (data.posts || []).map((p: any) => ({
+          ...p,
+          id: p._id || p.id || p.slug,
+        }));
+        setBlogPosts(posts);
+      })
+      .catch(console.error)
+      .finally(() => setPostsLoading(false));
+  }, []);
 
   // Get all unique tags
   const allTags = Array.from(new Set(blogPosts.flatMap(post => post.tags)));
@@ -30,6 +63,14 @@ export default function BlogPage() {
   // Determine which posts to display
   const postsToDisplay = searchResults.length > 0 ? searchResults : filteredPosts;
   const isSearching = searchResults.length > 0;
+
+  if (postsLoading) {
+    return (
+      <section className="min-h-screen py-6 lg:py-10 bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </section>
+    );
+  }
 
   return (
     <section id="blog" className="min-h-screen py-6 lg:py-10 bg-background">
@@ -103,7 +144,7 @@ export default function BlogPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredPosts.map(post => (
-                <Link key={post.id} href={`/blog/${post.slug}`}>
+                <Link key={post._id || post.id || post.slug} href={`/blog/${post.slug}`}>
                   <Card className="h-full hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden">
                     {/* Image */}
                     {post.image && (
