@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { blogPosts } from '@/constants/blog';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { hoverScale, tapScale } from '@/lib/animations';
+import { useState, useEffect } from 'react';
 
 const blogCardVariants = {
   hidden: { opacity: 0, y: 20, scale: 0.95 },
@@ -20,6 +20,17 @@ const blogCardVariants = {
 }
 
 export default function Blog() {
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/blogs?limit=2')
+      .then((res) => res.json())
+      .then((data) => setBlogPosts(data.posts || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
   // Show only first 2 posts on homepage
   const featuredPosts = blogPosts.slice(0, 2);
 
@@ -38,8 +49,17 @@ export default function Blog() {
 
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {featuredPosts.map((post, idx) => (
-            <Link key={post.id} href={`/blog/${post.slug}`}>
+          {loading ? (
+            <div className="col-span-2 flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : featuredPosts.length === 0 ? (
+            <div className="col-span-2 text-center py-8 text-muted-foreground">
+              No posts yet.
+            </div>
+          ) : (
+          featuredPosts.map((post, idx) => (
+            <Link key={post._id || post.id || post.slug} href={`/blog/${post.slug}`}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -94,7 +114,7 @@ export default function Blog() {
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {post.tags.slice(0, 2).map((tag) => (
+                      {(post.tags || []).slice(0, 2).map((tag: string) => (
                         <Badge key={tag} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
@@ -110,7 +130,8 @@ export default function Blog() {
                 </Card>
               </motion.div>
             </Link>
-          ))}
+          ))
+          )}
         </div>
 
         {/* View All Blog Posts Link */}
