@@ -14,6 +14,29 @@ export const projectsData = [
     ],
   },
   {
+    logo: "/fiqra-logo.svg",
+    title: "FIQRA",
+    description: "AI-assisted Islamic Q&A delivering evidence-backed rulings with Quran & Hadith citations and scholar video recommendations.",
+    image: "/fiqra.webp",
+    tags: [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "MongoDB",
+      "Gemini API",
+      "YouTube API",
+      "Upstash Redis"
+    ],
+    demoUrl: "",
+    githubUrl: "",
+    features: [
+      "AI context parsing and normalization",
+      "Evidence-backed rulings with Quran & Hadith citations",
+      "Scholar video recommendations",
+      "Admin tools, caching, and PDF export"
+    ]
+  },
+  {
     logo: "",
     title: "World ESG Summit",
     description:
