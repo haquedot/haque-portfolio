@@ -66,6 +66,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     tags: post.tags,
     readTime: post.readTime,
     views: post.views,
+    likes: post.likes,
     series: post.series,
     featured: post.featured,
   };

@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowLeft, User } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, User, Eye, Heart } from "lucide-react";
 
 interface BlogPost {
   _id: string;
@@ -23,6 +23,7 @@ interface BlogPost {
   tags: string[];
   readTime: number;
   views?: number;
+  likes?: number;
   series?: string;
   featured?: boolean;
 }
@@ -38,9 +39,124 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
     day: "numeric",
   });
 
+  const [views, setViews] = useState<number>(post.views ?? 0);
+  const [likes, setLikes] = useState<number>(post.likes ?? 0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const sessionKey = `viewed-blog-${post.slug}`;
+    if (sessionStorage.getItem(sessionKey)) {
+      return;
+    }
+    sessionStorage.setItem(sessionKey, Date.now().toString());
+
+    let cancelled = false;
+
+    const recordView = async () => {
+      try {
+        const response = await fetch(`/api/blogs/${post.slug}/views`, {
+          method: "POST",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to record view");
+        }
+
+        const data = await response.json();
+        if (!cancelled && typeof data.views === "number") {
+          setViews(data.views);
+        }
+      } catch (error) {
+        sessionStorage.removeItem(sessionKey);
+        console.error("Unable to record blog view:", error);
+      }
+    };
+
+    recordView();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [post.slug]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      const raw = localStorage.getItem("portfolio-liked-posts");
+      const likedSlugs: string[] = raw ? JSON.parse(raw) : [];
+      setHasLiked(Array.isArray(likedSlugs) && likedSlugs.includes(post.slug));
+    } catch (error) {
+      console.error("Unable to read liked posts from storage:", error);
+    }
+  }, [post.slug]);
+
+  const syncLikedPosts = (liked: boolean) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      const storageKey = "portfolio-liked-posts";
+      const raw = localStorage.getItem(storageKey);
+      const likedSlugs: string[] = raw ? JSON.parse(raw) : [];
+      const set = new Set(likedSlugs);
+
+      if (liked) {
+        set.add(post.slug);
+      } else {
+        set.delete(post.slug);
+      }
+
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(set)));
+    } catch (error) {
+      console.error("Unable to update liked posts in storage:", error);
+    }
+  };
+
+  const handleLikeToggle = async () => {
+    if (isLiking) {
+      return;
+    }
+
+    setIsLiking(true);
+
+    try {
+      const response = await fetch(`/api/blogs/${post.slug}/likes`, {
+        method: hasLiked ? "DELETE" : "POST",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update likes");
+      }
+
+      const data = await response.json();
+      if (typeof data.likes === "number") {
+        setLikes(data.likes);
+        setHasLiked(!hasLiked);
+        syncLikedPosts(!hasLiked);
+      }
+    } catch (error) {
+      console.error("Unable to update likes:", error);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  const contentWithoutH1 = post.content.replace(/^\s*#\s.*(\r?\n)?/, "");
+
   return (
-    <main className="min-h-screen py-16 px-4">
-      <div className="max-w-3xl mx-auto">
+    <main className="min-h-screen py-8">
+      <div className="max-w-4xl mx-auto">
         {/* Back link */}
         <Link
           href="/blog"
@@ -89,6 +205,10 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               <Clock className="h-4 w-4" />
               {post.readTime} min read
             </span>
+            <span className="flex items-center gap-1.5">
+              <Eye className="h-4 w-4" />
+              {typeof views === "number" ? views : 0} views
+            </span>
           </div>
 
           {/* Tags */}
@@ -101,6 +221,28 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               ))}
             </div>
           )}
+
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={handleLikeToggle}
+              disabled={isLiking}
+              aria-pressed={hasLiked}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                hasLiked
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-foreground hover:bg-muted"
+              } ${isLiking ? "opacity-70" : ""}`}
+            >
+              <Heart
+                className="h-4 w-4"
+                aria-hidden="true"
+                fill={hasLiked ? "currentColor" : "none"}
+              />
+              {hasLiked ? "Liked" : "Like"}
+              <span className="text-muted-foreground">• {likes}</span>
+            </button>
+          </div>
         </header>
 
         <hr className="mb-8 border-border" />
@@ -171,7 +313,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               },
             }}
           >
-            {post.content}
+            {contentWithoutH1}
           </ReactMarkdown>
         </article>
 
