@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Loader2, Eye } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import { BlogSearch } from '@/components/blog-search';
 import { type SearchResult } from '@/lib/blog-search';
@@ -33,18 +33,41 @@ export default function BlogPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   useEffect(() => {
-    fetch('/api/blogs')
-      .then((res) => res.json())
-      .then((data) => {
-        // Map _id to id for compatibility with BlogPost type
-        const posts = (data.posts || []).map((p: any) => ({
-          ...p,
-          id: p._id || p.id || p.slug,
+    let isMounted = true;
+
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('/api/blogs?limit=100', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch blog posts');
+        }
+
+        const data = await response.json();
+        if (!isMounted) return;
+
+        const normalizedPosts: BlogPostData[] = (data.posts ?? []).map((post: any) => ({
+          ...post,
+          id: post._id || post.id || post.slug,
+          date: post.date || new Date().toISOString(),
+          views: typeof post.views === 'number' ? post.views : 0,
+          likes: typeof post.likes === 'number' ? post.likes : 0,
         }));
-        setBlogPosts(posts);
-      })
-      .catch(console.error)
-      .finally(() => setPostsLoading(false));
+
+        setBlogPosts(normalizedPosts);
+      } catch (error) {
+        console.error('Error loading blog posts:', error);
+      } finally {
+        if (isMounted) {
+          setPostsLoading(false);
+        }
+      }
+    };
+
+    fetchPosts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Get all unique tags
@@ -139,26 +162,24 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* Blog Posts Grid (only show when not searching) */}
-        {!isSearching && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredPosts.map(post => (
-                <Link key={post._id || post.id || post.slug} href={`/blog/${post.slug}`}>
-                  <Card className="h-full hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden">
+        {/* Blog Posts Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {postsToDisplay.map((post) => (
+            <Link key={post.id || post.slug} href={`/blog/${post.slug}`}>
+              <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
                     {/* Image */}
                     {post.image && (
                       <div className="h-48 bg-muted overflow-hidden">
                         <img
                           src={post.image}
                           alt={post.title}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
                         />
                       </div>
                     )}
 
                     {/* Content */}
-                    <div className="p-6 flex flex-col h-full">
+                <div className="flex flex-1 flex-col p-6">
                       {/* Date and Read Time */}
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                         <div className="flex items-center gap-1">
@@ -175,6 +196,10 @@ export default function BlogPage() {
                           <Clock className="w-4 h-4" />
                           {post.readTime} min read
                         </div>
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-4 h-4" />
+                          {post.views ?? 0}
+                        </div>
                       </div>
 
                       {/* Title */}
@@ -188,39 +213,39 @@ export default function BlogPage() {
                       </p>
 
                       {/* Tags */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {post.tags.slice(0, 2).map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {post.tags.length > 2 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{post.tags.length - 2}
-                          </Badge>
-                        )}
-                      </div>
+                      {post.tags?.length > 0 && (
+                        <div className="mb-4 flex flex-wrap gap-2">
+                          {post.tags.slice(0, 2).map(tag => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                          {post.tags.length > 2 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{post.tags.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
 
                       {/* Read More Link */}
-                      <div className="flex items-center justify-end gap-2 text-primary font-medium text-sm group">
+                      <div className="mt-auto flex items-center justify-end gap-2 text-sm font-medium text-primary group">
                         Read Article
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
 
-            {/* No Posts Message */}
-            {filteredPosts.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-lg text-muted-foreground">
-                  No posts found for the selected tag. Try a different filter.
-                </p>
-              </div>
-            )}
-          </>
+        {/* No Posts Message */}
+        {postsToDisplay.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground">
+              No posts found for the selected tag. Try a different filter.
+            </p>
+          </div>
         )}
       </div>
     </section>
